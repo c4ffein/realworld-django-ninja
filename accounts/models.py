@@ -4,16 +4,12 @@ from django.db import models
 
 
 class UserManager(BaseUserManager):
-    def create_user(
-        self, email: str, password: str | None = None, **other_fields
-    ) -> User: 
+    def create_user(self, email: str, password: str | None = None, **other_fields) -> User:
         user = User(email=email, **other_fields)
-        
         if password: 
             user.set_password(password)
         else:
             user.set_unusable_password()
-            
         user.save()
         return user
     
@@ -26,10 +22,8 @@ class UserManager(BaseUserManager):
             raise ValueError("Superuser must be assigned to is_staff=True.")
         if other_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must be assigned to is_superuser=True.")
-        
         return self.create_user(email, password, **other_fields)
-    
-    
+
 
 class User(AbstractUser):
 
@@ -38,7 +32,7 @@ class User(AbstractUser):
     last_name = None
 
     email: str = models.EmailField("Email Address", unique=True)
-    username: str = models.CharField(max_length=60)
+    username: str = models.CharField(max_length=60, unique=True)
     bio: str = models.TextField(blank=True)
     image: str | None = models.URLField(null=True, blank=True)
 
@@ -50,16 +44,8 @@ class User(AbstractUser):
 
     objects = UserManager()
 
-
     def get_full_name(self) -> str:
-        if self.first_name and self.last_name:
-            return f"{self.first_name} {self.last_name}"
-        else: 
-            return self.username
-       
+        return f"{self.first_name} {self.last_name}" if self.first_name and self.last_name else self.username
 
     def get_short_name(self) -> str:
-        if self.first_name and self.last_name:
-            return f"{self.first_name[0]}{self.last_name}"
-        else:
-            return self.username
+        return f"{self.first_name[0]}{self.last_name}" if self.first_name and self.last_name else self.username

@@ -1,10 +1,22 @@
+annotated-types == 0.6.0
+asgiref == 3.7.2
+coreapi == 2.3.3
 django == 4.2.2
 djangorestframework == 3.14.0
 djangorestframework-simplejwt == 5.2.2
-whitenoise == 6.5.0
-django-taggit == 4.0.0
-markdown == 3.4.3
+django-cors-headers == 4.3.1
+django-extensions==3.2.3
 django-filter == 23.2
+django-ninja == 1.1.0
+django-ninja-jwt == 5.3.1
+django-taggit == 4.0.0
 drf-yasg == 1.21.6
-coreapi == 2.3.3
+email-validator == 2.1.1
+markdown == 3.4.3
+parameterized==0.9.0
 psycopg2 ==2.9.6
+pydantic == 2.6.4
+pydantic-core == 2.16.3
+sqlparse == 0.4.4
+typing-extensions == 4.10.0
+whitenoise == 6.5.0
