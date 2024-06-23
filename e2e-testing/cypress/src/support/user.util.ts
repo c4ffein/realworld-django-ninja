@@ -5,7 +5,7 @@ export function registerUser(
     password?: string;
   } = {
     username: `${Cypress.env('prefix')}${Date.now()}`,
-    email: `${Cypress.env('prefix')}${Date.now()}`,
+    email: `${Cypress.env('prefix')}${Date.now()}@django-ninja.dev`,
     password: `${Cypress.env('prefix')}${Date.now()}`,
   },
 ): Cypress.Chainable {

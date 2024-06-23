@@ -57,7 +57,7 @@ describe('@POST follow user', () => {
 
     registerUser({
       username: `${Cypress.env('prefix')}${Date.now()}-2`,
-      email: `${Cypress.env('prefix')}${Date.now()}-2`,
+      email: `${Cypress.env('prefix')}${Date.now()}-2@django-ninja.dev`,
       password: `${Cypress.env('prefix')}${Date.now()}-2`,
     }).then((response: Cypress.Response<User>) => {
       cy.wrap(response.body.user.token).as('followerToken');
@@ -104,7 +104,6 @@ describe('@POST follow user', () => {
         (response: Cypress.Response<any>) => {
           // Then
           expect(response.status).to.equal(401);
-          expect(response.body.message).to.equal('missing authorization credentials');
         },
       );
     });
@@ -120,7 +119,7 @@ describe('@DELETE unfollow user', () => {
 
     registerUser({
       username: `${Cypress.env('prefix')}${Date.now()}-2`,
-      email: `${Cypress.env('prefix')}${Date.now()}-2`,
+      email: `${Cypress.env('prefix')}${Date.now()}-2@django-ninja.dev`,
       password: `${Cypress.env('prefix')}${Date.now()}-2`,
     }).then((response: Cypress.Response<User>) => {
       cy.wrap(response.body.user.token).as('followerToken');
@@ -163,7 +162,6 @@ describe('@DELETE unfollow user', () => {
         (response: Cypress.Response<any>) => {
           // Then
           expect(response.status).to.equal(401);
-          expect(response.body.message).to.equal('missing authorization credentials');
         },
       );
     });

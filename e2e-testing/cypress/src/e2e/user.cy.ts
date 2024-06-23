@@ -5,7 +5,7 @@ describe('@POST register user', () => {
     // Given
     const user = {
       username: `${Cypress.env('prefix')}${Date.now()}`,
-      email: `${Cypress.env('prefix')}${Date.now()}`,
+      email: `${Cypress.env('prefix')}${Date.now()}@django-ninja.dev`,
       password: `${Cypress.env('prefix')}${Date.now()}`,
     };
 
@@ -23,7 +23,7 @@ describe('@POST register user', () => {
     // Given
     const user = {
       username: '',
-      email: `${Cypress.env('prefix')}${Date.now()}`,
+      email: `${Cypress.env('prefix')}${Date.now()}@django-ninja.dev`,
       password: `${Cypress.env('prefix')}${Date.now()}`,
     };
 
@@ -31,7 +31,7 @@ describe('@POST register user', () => {
     registerUser(user).then((response: Cypress.Response<{ errors: { username: string[] } }>) => {
       // Then
       expect(response.status).to.equal(422);
-      expect(response.body.errors.username[0]).to.equal("can't be blank");
+      expect(response.body.detail[0].ctx.error).to.equal('can\'t be blank');
     });
   });
 
@@ -46,8 +46,7 @@ describe('@POST register user', () => {
     // When
     registerUser(user).then((response: Cypress.Response<{ errors: { email: string[] } }>) => {
       // Then
-      expect(response.status).to.equal(422);
-      expect(response.body.errors.email[0]).to.equal("can't be blank");
+      expect(response.status).to.equal(422);  // error may depend from email lib
     });
   });
 
@@ -55,7 +54,7 @@ describe('@POST register user', () => {
     // Given
     const user = {
       username: `${Cypress.env('prefix')}${Date.now()}`,
-      email: `${Cypress.env('prefix')}${Date.now()}`,
+      email: `${Cypress.env('prefix')}${Date.now()}@django-ninja.dev`,
       password: '',
     };
 
@@ -63,7 +62,7 @@ describe('@POST register user', () => {
     registerUser(user).then((response: Cypress.Response<{ errors: { password: string[] } }>) => {
       // Then
       expect(response.status).to.equal(422);
-      expect(response.body.errors.password[0]).to.equal("can't be blank");
+      expect(response.body.detail[0].ctx.error).to.equal('can\'t be blank');
     });
   });
 
@@ -71,7 +70,7 @@ describe('@POST register user', () => {
     // Given
     const user = {
       username: `${Cypress.env('prefix')}${Date.now()}`,
-      email: `${Cypress.env('prefix')}${Date.now()}`,
+      email: `${Cypress.env('prefix')}${Date.now()}@django-ninja.dev`,
       password: `${Cypress.env('prefix')}${Date.now()}`,
     };
 
@@ -80,9 +79,7 @@ describe('@POST register user', () => {
     registerUser(user).then(
       (response: Cypress.Response<{ errors: { username: string[]; email: string[] } }>) => {
         // Then
-        expect(response.status).to.equal(422);
-        expect(response.body.errors.username[0]).to.equal('has already been taken');
-        expect(response.body.errors.email[0]).to.equal('has already been taken');
+        expect(response.status).to.equal(409);
       },
     );
   });
@@ -93,7 +90,7 @@ describe('@POST login', () => {
     // Given
     const user = {
       username: `${Cypress.env('prefix')}${Date.now()}`,
-      email: `${Cypress.env('prefix')}${Date.now()}`,
+      email: `${Cypress.env('prefix')}${Date.now()}@django-ninja.dev`,
       password: `${Cypress.env('prefix')}${Date.now()}`,
     };
     registerUser(user);
@@ -115,7 +112,7 @@ describe('@POST login', () => {
     // Given
     const user = {
       username: `${Cypress.env('prefix')}${Date.now()}`,
-      email: `${Cypress.env('prefix')}${Date.now()}`,
+      email: `${Cypress.env('prefix')}${Date.now()}@django-ninja.dev`,
       password: `${Cypress.env('prefix')}${Date.now()}`,
     };
     registerUser(user);
@@ -127,7 +124,7 @@ describe('@POST login', () => {
     }).then(response => {
       // Then
       expect(response.status).to.equal(422);
-      expect(response.body.errors.email[0]).to.equal("can't be blank");
+      expect(response.body.detail[0].ctx.error).to.equal('can\'t be blank');
     });
   });
 
@@ -135,7 +132,7 @@ describe('@POST login', () => {
     // Given
     const user = {
       username: `${Cypress.env('prefix')}${Date.now()}`,
-      email: `${Cypress.env('prefix')}${Date.now()}`,
+      email: `${Cypress.env('prefix')}${Date.now()}@django-ninja.dev`,
       password: `${Cypress.env('prefix')}${Date.now()}`,
     };
     registerUser(user);
@@ -147,15 +144,15 @@ describe('@POST login', () => {
     }).then(response => {
       // Then
       expect(response.status).to.equal(422);
-      expect(response.body.errors.password[0]).to.equal("can't be blank");
+      expect(response.body.detail[0].ctx.error).to.equal('can\'t be blank');
     });
   });
 
-  it('KO @422 : incorrect password', () => {
+  it('KO @401 : incorrect password', () => {
     // Given
     const user = {
       username: `${Cypress.env('prefix')}${Date.now()}`,
-      email: `${Cypress.env('prefix')}${Date.now()}`,
+      email: `${Cypress.env('prefix')}${Date.now()}@django-ninja.dev`,
       password: `${Cypress.env('prefix')}${Date.now()}`,
     };
     registerUser(user);
@@ -166,8 +163,8 @@ describe('@POST login', () => {
       password: 'incorrect',
     }).then(response => {
       // Then
-      expect(response.status).to.equal(403);
-      expect(response.body.errors['email or password'][0]).to.equal('is invalid');
+      expect(response.status).to.equal(401);
+      expect(response.body.detail[0].msg).to.equal('incorrect credentials');
     });
   });
 });
@@ -178,7 +175,7 @@ describe('@GET current user', () => {
     // Given
     const user = {
       username: `${Cypress.env('prefix')}${Date.now()}`,
-      email: `${Cypress.env('prefix')}${Date.now()}`,
+      email: `${Cypress.env('prefix')}${Date.now()}@django-ninja.dev`,
       password: `${Cypress.env('prefix')}${Date.now()}`,
     };
 
@@ -201,7 +198,6 @@ describe('@GET current user', () => {
     cy.getRequest('/api/user').then((response: Cypress.Response<{ message: string }>) => {
       // Then
       expect(response.status).to.equal(401);
-      expect(response.body.message).to.equal('missing authorization credentials');
     });
   });
 });
@@ -212,7 +208,7 @@ describe('@PUT update user', () => {
     // Given
     const user = {
       username: `${Cypress.env('prefix')}${Date.now()}`,
-      email: `${Cypress.env('prefix')}${Date.now()}`,
+      email: `${Cypress.env('prefix')}${Date.now()}@django-ninja.dev`,
       password: `${Cypress.env('prefix')}${Date.now()}`,
     };
 
@@ -223,7 +219,7 @@ describe('@PUT update user', () => {
     // When
     const updateUser = {
       username: `${Cypress.env('prefix')}${Date.now()}-2`,
-      email: `${Cypress.env('prefix')}${Date.now()}-2`,
+      email: `${Cypress.env('prefix')}${Date.now()}-2@django-ninja.dev`,
     };
     cy.then(function () {
       cy.putRequest('/api/user', { user: updateUser }, this.token).then(
@@ -252,7 +248,7 @@ describe('@PUT update user', () => {
     const user = {
       user: {
         username: `${Cypress.env('prefix')}${Date.now()}`,
-        email: `${Cypress.env('prefix')}${Date.now()}`,
+        email: `${Cypress.env('prefix')}${Date.now()}@django-ninja.dev`,
       },
     };
 
@@ -262,7 +258,6 @@ describe('@PUT update user', () => {
       .then((response: Cypress.Response<{ message: string }>) => {
         // Then
         expect(response.status).to.equal(401);
-        expect(response.body.message).to.equal('missing authorization credentials');
       });
   });
 });

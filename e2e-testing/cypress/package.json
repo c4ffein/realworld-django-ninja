@@ -1,0 +1,38 @@
+{
+  "name": "realworld-e2e-cypress-ninja",
+  "author": {
+    "name": "Thinkster & c4ffein"
+  },
+  "version": "0.0.1",
+  "license": "MIT",
+  "description": "Custom e2e tests",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/c4ffein/realworld-django-ninja.git"
+  },
+  "bugs": {
+    "url": "https://github.com/c4ffein/realworld-django-ninja/issues"
+  },
+  "homepage": "https://github.com/c4ffein/realworld-django-ninja",
+  "keywords": [],
+  "scripts": {
+    "test": "cypress run",
+    "prettier:write": "npx prettier --write .",
+    "prettier:check": "npx prettier --check .",
+    "lint:check": "npx eslint apps/**/*.ts",
+    "lint:fix": "npx eslint --fix apps/**/*.ts"
+  },
+  "private": true,
+  "devDependencies": {
+    "typescript": "^5.5.2"
+  },
+  "lint-staged": {
+    "*.{js,ts}": "eslint --cache --fix",
+    "*.{js,jsx,ts,tsx,html,json,md,mdx}": "prettier --write"
+  },
+  "dependencies": {
+    "cypress": "^13.12.0",
+    "cypress-plugin-api": "^2.11.1"
+  },
+  "type": "module"
+}
