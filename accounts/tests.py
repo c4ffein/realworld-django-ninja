@@ -339,6 +339,11 @@ class ProfileDetailViewTestCase(APITestCase):
         self.assertEqual(loads(response.content), {'profile': self.other_dict})
         self.assertEqual(self.other_user.followers.count(), 0)
 
+    def test_profile_detail_view_cant_unfollow_if_not_logged(self):
+        self.client.credentials(HTTP_AUTHORIZATION=None)
+        response = self.client.delete(f'{self.other_url}/follow')
+        self.assertEqual(response.status_code, 401)
+
     def test_profile_detail_view_cant_unfollow_not_followed(self):
         response = self.client.delete(f'{self.other_url}/follow')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)  # TODO Better 409

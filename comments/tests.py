@@ -2,18 +2,22 @@ from unittest import mock
 import re
 
 from django.contrib.auth import get_user_model
-from rest_framework.test import APITestCase
-from rest_framework import status
-from rest_framework_simplejwt.tokens import  AccessToken
+from django.test import TestCase
+from rest_framework_simplejwt.tokens import AccessToken
+
+from helpers.headered_client import HeaderedClient
 
 from articles.models import Article
 from comments.models import Comment
+from comments.api import router
+
+from config.urls import api
 
 
 User = get_user_model()
 
 
-class CommentViewTestCase(APITestCase):
+class CommentViewTestCase(TestCase):
     def setUp(self):
         for i in range(2):
             user = User.objects.create_user(username=f"testuser{i}", password="pass", email=f"test{i}@email.email")
@@ -29,27 +33,37 @@ class CommentViewTestCase(APITestCase):
                     slug = f"test-slug-{i}",
                 )
             )
-        self.access_token = str(AccessToken.for_user(self.user_0))
-        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.access_token}")
-        for i, article, author in [[0, self.article_0, self.user_1], [1, self.article_0, self.user_0]]:
+        access_token = self.access_token = str(AccessToken.for_user(self.user_0))
+        for i, article, author in [
+            [0, self.article_0, self.user_1],
+            [1, self.article_0, self.user_0],
+            [2, self.article_1, self.user_0],
+            [3, self.article_1, self.user_1],
+        ]:
             comment = Comment.objects.create(article = article, author = author, content = f"comment {i} content")
             setattr(self, f"comment_{i}", comment)
-    
+        self.client = HeaderedClient(
+            router, headers={"Authorization": f"Token {access_token}", "Content-Type": "application/json"}
+        )
+
     def _valid_timestamps_in_output_dict(self, output_dict):
         ts_regex = r"\b[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]*Z\b"
         self.assertTrue(re.search(ts_regex, output_dict["createdAt"]))
-        self.assertTrue(re.search(ts_regex, output_dict["updatedAt"]))    
+        self.assertTrue(re.search(ts_regex, output_dict["updatedAt"]))
 
     def test_get_comments_list_on_article_without_comment(self):
-        url = f'/api/articles/{self.article_1.slug}/comments'
+        for comment in Comment.objects.all():
+            comment.delete()
+        url = f'/articles/{self.article_1.slug}/comments'
         response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, {"comments": []})
 
     def test_get_comments_list_on_article_with_comments(self):
-        url = f'/api/articles/{self.article_0.slug}/comments'
+        self.maxDiff=None
+        url = f'/articles/{self.article_0.slug}/comments'
         response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.data,
             {
@@ -59,7 +73,12 @@ class CommentViewTestCase(APITestCase):
                         'createdAt': mock.ANY,
                         'updatedAt': mock.ANY,
                         'body': f"comment {n} content",
-                        'author': {'username': f"testuser{u}", 'bio': '', 'image': None, 'following': False},
+                        'author': {
+                            'username': f"testuser{u}",
+                            'bio': None,
+                            'image': 'https://api.realworld.io/images/smiley-cyrus.jpeg',
+                            'following': False,
+                        },
                     } for comment, n, u in [[self.comment_1, 1, 0], [self.comment_0, 0, 1]]
                 ],
             },
@@ -67,31 +86,64 @@ class CommentViewTestCase(APITestCase):
         self._valid_timestamps_in_output_dict(response.data["comments"][0])
         self._valid_timestamps_in_output_dict(response.data["comments"][1])
 
+    # TODO : Check following
+
     def test_create_comment(self):
-        url = f'/api/articles/{self.article_1.slug}/comments'
-        data = {'comment': {'body': 'This is a test comment'}}
-        response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.post(
+            f'/articles/{self.article_1.slug}/comments',
+            json={'comment': {'body': 'This is a test comment'}},
+        )
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.data,
             {
                 'comment': {
-                    'id': self.article_1.comment_set.first().id,
+                    'id': self.article_1.comment_set.last().id,
                     'createdAt': mock.ANY,
                     'updatedAt': mock.ANY,
                     'body': 'This is a test comment',
-                    'author': {'username': 'testuser0', 'bio': '', 'image': None, 'following': False},
+                    'author': {
+                        'username': 'testuser0',
+                        'bio': None,
+                        'image': 'https://api.realworld.io/images/smiley-cyrus.jpeg',
+                        'following': False,
+                    },
                 },
             },
         )
-        self.assertEqual(self.article_1.comment_set.count(), 1)
-        self.assertEqual(self.article_1.comment_set.first().content, "This is a test comment")
-        self.assertEqual(self.article_1.comment_set.first().author, self.user_0)
+        self.assertEqual(self.article_1.comment_set.count(), 3)
+        self.assertEqual(self.article_1.comment_set.last().content, "This is a test comment")
+        self.assertEqual(self.article_1.comment_set.last().author, self.user_0)
         self._valid_timestamps_in_output_dict(response.data["comment"])
 
-    def test_delete_comment(self):
-        url = f'/api/articles/{self.article_0.slug}/comments/{self.comment_0.id}'
-        response = self.client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+    def test_cant_create_comment_if_not_logged(self):
+        self.client.headers["Authorization"] = None
+        response = self.client.post(
+            f'/articles/{self.article_1.slug}/comments',
+            json={'comment': {'body': 'This is a test comment'}},
+        )
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(self.article_1.comment_set.count(), 2)
+
+    def test_delete_comment_on_my_article_from_other_user(self):
+        response = self.client.delete(f'/articles/{self.article_0.slug}/comments/{self.comment_0.id}')
+        self.assertEqual(response.status_code, 204)
         self.assertEqual(self.article_0.comment_set.count(), 1)
         self.assertEqual(self.article_0.comment_set.first(), self.comment_1)
+
+    def test_delete_comment_on_other_article_but_is_mine(self):
+        response = self.client.delete(f'/articles/{self.article_1.slug}/comments/{self.comment_2.id}')
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(self.article_1.comment_set.count(), 1)
+        self.assertEqual(self.article_1.comment_set.first(), self.comment_3)
+
+    def test_cant_delete_comment_on_other_article_as_it_is_not_mine(self):
+        response = self.client.delete(f'/articles/{self.article_1.slug}/comments/{self.comment_3.id}')
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(self.article_1.comment_set.count(), 2)
+
+    def test_cant_delete_comment_not_logged(self):
+        self.client.headers["Authorization"] = None
+        response = self.client.delete(f'/articles/{self.article_0.slug}/comments/{self.comment_1.id}')
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(self.article_1.comment_set.count(), 2)
