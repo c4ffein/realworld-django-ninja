@@ -24,8 +24,11 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
 
+
 api = NinjaAPI()
 api.add_router("/", "accounts.api.router")
+api.add_router("/", "articles.api.router")
+api.add_router("/", "comments.api.router")
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -43,10 +46,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-redoc'),
     path(f'{api_prefix}/', include('articles.urls')),
-    path(f'{api_prefix}/', include('comments.urls')),
     path(f'{api_prefix}/', api.urls),
 ]
 
-if settings.DEBUG:  
+if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-

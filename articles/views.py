@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework import viewsets , status, mixins, generics
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
@@ -33,152 +34,105 @@ class ArticleView(viewsets.ModelViewSet):
             self.perform_create(serializer)
             headers = self.get_success_headers(serializer.data)
             return Response({"article":serializer.data}, status=status.HTTP_201_CREATED)
-        
         except Exception:
-            return Response({"errors": {
-                "body": [
-                    "Bad Request"
-                ]
-            }}, status=status.HTTP_404_NOT_FOUND)   
-            
-    
+            return Response({"errors": {"body": ["Bad Request"]}}, status=status.HTTP_404_NOT_FOUND)
             
     @action(detail=True, methods=['post', 'delete'])
     def favorite(self, request, slug, *args, **kwargs):
         if request.method == 'POST':
             try:
                 article = Article.objects.get(slug=slug)
-                
-                
                 if article.favorites.filter(id=request.user.id).exists():
-                    return Response({"errors": {
-                        "body": [
-                            "Already Favourited Article"
-                        ]
-                    }})
-                    
+                    return Response({"errors": {"body": ["Already Favourited Article"]}})
                 article.favorites.add(request.user)
                 serializer = self.get_serializer(article)
                 return Response({"article": serializer.data})
-                   
             except Exception:
-                return Response({"errors": {
-                    "body": [
-                        "Bad Request"
-                    ]
-                }}, status=status.HTTP_404_NOT_FOUND)   
+                return Response({"errors": {"body": ["Bad Request"]}}, status=status.HTTP_404_NOT_FOUND)
         else:
             try:
-                
                 article = Article.objects.get(slug=slug)
                 if article.favorites.get(id=request.user.id):
                     article.favorites.remove(request.user.id)
                     serializer = self.get_serializer(article)
                     return Response({ "article": serializer.data })
-                
                 else:
                     raise Exception
-            
             except Exception:
-                return Response({"errors": {
-                    "body": [
-                        "Bad Request"
-                    ]
-                }}, status=status.HTTP_404_NOT_FOUND)  
+                return Response({"errors": {"body": ["Bad Request"]}}, status=status.HTTP_404_NOT_FOUND)
             
     @action(detail=False)
     def feed(self, request, *args, **kwargs):
         try:
             followed_authors = User.objects.filter(followers=request.user)
             queryset = self.get_queryset()
-            articles = queryset.filter(
-                author__in=followed_authors).order_by('-created')
-            queryset = self.filter_queryset(articles)
-            
-            serializer = self.get_serializer(queryset, many=True)
+            articles = [a for a in queryset.filter(author__in=followed_authors).order_by('-created')]
             response = {
-                'comments': serializer.data,
-                'articleCount': len(serializer.data)
+                'articlesCount': len(articles),
+                'articles': [
+                    {
+                        "author": {
+                            "username": a.author.username,
+                            "bio": a.author.bio or None,
+                            "image": a.author.image or settings.DEFAULT_USER_IMAGE,
+                            "following": True,
+                        },
+                        "title": a.title,
+                        "description": a.summary,
+                        "body": a.content,
+                        "tagList": [t.name for t in a.tags.all()],
+                        'slug': a.slug,
+                        'createdAt': a.created,
+                        'updatedAt': a.updated,
+                        'favorited': bool(a.favorites.filter(id=request.user.id).count()),
+                        'favoritesCount': a.favorites.count(),
+                    }
+                    for a in articles
+                ],
             }
             return Response(response)
                
-        except Exception:
-            return Response({"errors": {
-                "body": [
-                    "Bad Request"
-                ]
-            }}, status=status.HTTP_404_NOT_FOUND)         
+        except Exception as e:
+            return Response({"errors": {"body": ["Bad Request"]}}, status=status.HTTP_404_NOT_FOUND)
         
     def retrieve(self, request, slug, *args, **kwargs):
         try:
-            queryset = self.get_queryset()
-            article = queryset.get(slug=slug)
-            serializer = self.get_serializer(article)
-            
-            return Response({"article": serializer.data})
-            
+            return Response({"article": self.get_serializer(self.get_queryset().get(slug=slug)).data})
         except Exception:
-            return Response({"errors": {
-                "body": [
-                    "Bad Request"
-                ]
-            }}, status=status.HTTP_404_NOT_FOUND)     
+            return Response({"errors": {"body": ["Bad Request"]}}, status=status.HTTP_404_NOT_FOUND)
     
     def update(self, request, slug, *args, **kwargs):
-        
         try:
             queryset = self.get_queryset()
             article = queryset.get(slug=slug)
             
             if request.user != article.author:
-                return Response({"errors": {
-                    "body": [
-                        "UnAuthorized Action"
-                    ]
-                }}, status=status.HTTP_401_UNAUTHORIZED)
-                
+                return Response({"errors": {"body": ["UnAuthorized Action"]}}, status=status.HTTP_401_UNAUTHORIZED)
             request_data = request.data.get('article')
             serializer = self.get_serializer(article, data=request_data)
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
-            
             return Response({"article": serializer.data})
         
         except Exception:
-            return Response({"errors": {
-                "body": [
-                    "Bad Request"
-                ]
-            }}, status=status.HTTP_404_NOT_FOUND) 
+            return Response({"errors": {"body": ["Bad Request"]}}, status=status.HTTP_404_NOT_FOUND)
     
     def destroy(self, request, slug, *args, **kwargs):
         try:
-            queryset = self.get_queryset()
-            article = queryset.get(slug=slug)
-        
+            article = self.get_queryset().get(slug=slug)
             if request.user != article.author:
-                return Response({"errors": {
-                    "body": [
-                        "UnAuthorized Action"
-                    ]
-                }}, status=status.HTTP_401_UNAUTHORIZED)
-                
+                return Response({"errors": {"body": ["UnAuthorized Action"]}}, status=status.HTTP_401_UNAUTHORIZED)
             article.delete()
             return Response(status=status.HTTP_200_OK)
           
         except Exception:
-            return Response({"errors": {
-                "body": [
-                    "Bad Request"
-                ]
-            }}, status=status.HTTP_404_NOT_FOUND)          
+            return Response({"errors": {"body": ["Bad Request"]}}, status=status.HTTP_404_NOT_FOUND)
 
             
 class TagView(viewsets.GenericViewSet, mixins.ListModelMixin):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     http_method_names=['get',]
-    
 
     def list(self, request, *args, **kwargs):
         try:
@@ -188,8 +142,4 @@ class TagView(viewsets.GenericViewSet, mixins.ListModelMixin):
             return Response(serializer.data)
             
         except Exception:
-            return Response({"errors": {
-                "body": [
-                    "Bad Request"
-                ]
-            }}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"errors": {"body": ["Bad Request"]}}, status=status.HTTP_404_NOT_FOUND)

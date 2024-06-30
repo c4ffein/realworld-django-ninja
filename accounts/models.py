@@ -12,7 +12,7 @@ class UserManager(BaseUserManager):
             user.set_unusable_password()
         user.save()
         return user
-    
+
     def create_superuser(self, email: str, password: str | None = None, **other_fields) -> User:
         other_fields.setdefault("is_staff", True)
         other_fields.setdefault("is_superuser", True)
@@ -49,3 +49,6 @@ class User(AbstractUser):
 
     def get_short_name(self) -> str:
         return f"{self.first_name[0]}{self.last_name}" if self.first_name and self.last_name else self.username
+
+    def is_following(self, other_user):
+        return other_user.followers.filter(pk=self.id).exists() if self.is_authenticated else False

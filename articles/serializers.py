@@ -10,6 +10,7 @@ from articles.models import Article
 
 User = get_user_model()
 
+
 class AuthorSerializer(serializers.ModelSerializer):
     following = serializers.SerializerMethodField()
     
@@ -17,11 +18,8 @@ class AuthorSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'bio', 'image', 'following')
         
-    def get_following(self, obj):
-        user = self.context.get('request').user
-        if user.is_authenticated:
-            return obj.followers.filter(pk=user.id).exists()
-        return False
+    def get_following(self, other_user):
+        return self.context.get('request').user.is_following(other_user)
 
     
 class ArticleSerializer(TaggitSerializer, serializers.ModelSerializer):
@@ -82,4 +80,3 @@ class TagSerializer(serializers.Serializer):
     tags = serializers.ListField(
         child=serializers.CharField()
     )
-        

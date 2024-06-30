@@ -1,5 +1,6 @@
 from unittest import mock
 import re
+from json import loads
 
 from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase, APIClient
@@ -32,6 +33,7 @@ class ArticleViewSetTest(APITestCase):
             content="Other Test content",
             slug="other-test-slug",
         )
+        self.other_article.tags.add("OT")
         self.other_user.followers.add(self.user)
         self.article_out = {
             'slug': 'test-title',
@@ -50,7 +52,7 @@ class ArticleViewSetTest(APITestCase):
             'title': 'Other Test Title',
             'description': 'Other Test summary',
             'body': 'Other Test content',
-            'tagList': [],
+            'tagList': ["OT"],
             'createdAt': mock.ANY,
             'updatedAt': mock.ANY,
             'favorited': False,
@@ -74,23 +76,28 @@ class ArticleViewSetTest(APITestCase):
         response = self.client.get("/api/articles/feed")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, {
-            'articleCount': 1,
-            'comments': [
+            'articlesCount': 1,
+            'articles': [
                 {
                     'slug': 'other-test-title',
                     'title': 'Other Test Title',
                     'description': 'Other Test summary',
                     'body': 'Other Test content',
-                    'tagList': [],
+                    'tagList': ["OT"],
                     'createdAt': mock.ANY,
                     'updatedAt': mock.ANY,
                     'favorited': False,
                     'favoritesCount': 0,
-                    'author': {'username': 'otheruser', 'bio': '', 'image': None, 'following': True},
+                    'author': {
+                        'username': 'otheruser',
+                        'bio': None,
+                        'image': 'https://api.realworld.io/images/smiley-cyrus.jpeg',
+                        'following': True,
+                    },
                 },
             ],
         })
-        self._valid_timestamps_in_output_dict(response.data["comments"][0])
+        self._valid_timestamps_in_output_dict(loads(response.content)["articles"][0])
         
     def test_create_article(self):
         new_article_data = {
