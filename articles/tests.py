@@ -314,5 +314,6 @@ class TagViewSet(APITestCase):
     def test_list_tags(self):
         response = self.client.get("/api/tags")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, {"tags": mock.ANY})
-        self.assertEqual(set(response.data["tags"]), {"red", "green", "blue"})
+        data = loads(response.content)
+        self.assertEqual(data, {"tags": mock.ANY})
+        self.assertEqual(set(data["tags"]), {"red", "green", "blue"})

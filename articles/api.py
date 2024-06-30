@@ -157,4 +157,4 @@ router = Router()
 
 @router.get('/tags', response={200: Any})
 def list_tags(request):
-    return {"tags": [t for t in Tag.objects.all()]}
+    return {"tags": [t.name for t in Tag.objects.all()]}
