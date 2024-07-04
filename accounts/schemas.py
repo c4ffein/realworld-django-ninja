@@ -26,7 +26,7 @@ class ProfileSchema(ModelSchema):
     @staticmethod
     def resolve_following(obj, context) -> str:
         user = context.get("request").user
-        return obj.followers.filter(pk=user.id).exists() if user.is_authenticated else False
+        return obj.followers.filter(pk=user.id).exists() if user and user.is_authenticated else False
 
     @staticmethod
     def resolve_bio(obj, context) -> str:

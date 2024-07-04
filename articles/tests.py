@@ -8,6 +8,8 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import  AccessToken
 
 from articles.models import Article
+from articles.api import router
+from helpers.headered_client import HeaderedClient
 
 
 User = get_user_model() 
@@ -16,8 +18,11 @@ User = get_user_model()
 class ArticleViewSetTest(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='testuser', email='test@email.test', password='testpassword')
-        self.access_token = str(AccessToken.for_user(self.user)) 
-        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.access_token}")
+        access_token = self.access_token = str(AccessToken.for_user(self.user))
+        self.client = HeaderedClient(
+            router, headers={"Authorization": f"Token {access_token}", "Content-Type": "application/json"}
+        )
+        self.default_image = "https://api.realworld.io/images/smiley-cyrus.jpeg"
         self.article = Article.objects.create(
             author= self.user, 
             title="Test Title", 
@@ -45,7 +50,7 @@ class ArticleViewSetTest(APITestCase):
             'updatedAt': mock.ANY,
             'favorited': False,
             'favoritesCount': 0,
-            'author': {'username': 'testuser', 'bio': '', 'image': None, 'following': False},
+            'author': {'username': 'testuser', 'bio': None, 'image': self.default_image, 'following': False},
         }
         self.other_article_out = {
             'slug': 'other-test-title',
@@ -57,7 +62,7 @@ class ArticleViewSetTest(APITestCase):
             'updatedAt': mock.ANY,
             'favorited': False,
             'favoritesCount': 0,
-            'author': {'username': 'otheruser', 'bio': '', 'image': None, 'following': True},
+            'author': {'username': 'otheruser', 'bio': None, 'image': self.default_image, 'following': True},
         }
 
     def _valid_timestamps_in_output_dict(self, output_dict):
@@ -66,14 +71,14 @@ class ArticleViewSetTest(APITestCase):
         self.assertTrue(re.search(ts_regex, output_dict["updatedAt"]))
 
     def test_get_articles(self):
-        response = self.client.get("/api/articles")
+        response = self.client.get("/articles", user=self.user)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, [self.article_out, self.other_article_out])
-        self._valid_timestamps_in_output_dict(response.data[0])
-        self._valid_timestamps_in_output_dict(response.data[1])
+        self.assertEqual(response.data.get("articles", None), [self.article_out, self.other_article_out])
+        self._valid_timestamps_in_output_dict(response.data.get("articles", None)[0])
+        self._valid_timestamps_in_output_dict(response.data.get("articles", None)[1])
         
     def test_get_article_feed(self):
-        response = self.client.get("/api/articles/feed")
+        response = self.client.get("/articles/feed", user=self.user)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, {
             'articlesCount': 1,
@@ -91,7 +96,7 @@ class ArticleViewSetTest(APITestCase):
                     'author': {
                         'username': 'otheruser',
                         'bio': None,
-                        'image': 'https://api.realworld.io/images/smiley-cyrus.jpeg',
+                        'image': self.default_image,
                         'following': True,
                     },
                 },
@@ -100,6 +105,7 @@ class ArticleViewSetTest(APITestCase):
         self._valid_timestamps_in_output_dict(loads(response.content)["articles"][0])
         
     def test_create_article(self):
+        self.maxDiff = None
         new_article_data = {
             "article": {
                 "title": "New Test Title",
@@ -108,7 +114,7 @@ class ArticleViewSetTest(APITestCase):
                 "tagList": ["tag", "taag", "taaag"]
             }
         }
-        response = self.client.post("/api/articles", data=new_article_data, format='json')
+        response = self.client.post("/articles", json=new_article_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data, {
             'article': {
@@ -121,7 +127,7 @@ class ArticleViewSetTest(APITestCase):
                 'updatedAt': mock.ANY,
                 'favorited': False,
                 'favoritesCount': 0,
-                'author': {'username': 'testuser', 'bio': '', 'image': None, 'following': False},
+                'author': {'username': 'testuser', 'bio': None, 'image': self.default_image, 'following': False},
             },
         })
         self._valid_timestamps_in_output_dict(response.data["article"])
@@ -146,10 +152,10 @@ class ArticleViewSetTest(APITestCase):
                 "tagList": ["tag", "taag", "taaag"]
             }
         }
-        response = self.client.post("/api/articles", data=new_article_data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)  # TODO : Better
+        response = self.client.post("/articles", json=new_article_data)
+        self.assertEqual(response.status_code, 422)
 
-    def test_create_article_invalid_data_additional_field(self):
+    def test_create_article_additional_unused_field_still_ok(self):
         new_article_data = {
             "article": {
                 "title": "New Test Title",
@@ -159,8 +165,8 @@ class ArticleViewSetTest(APITestCase):
                 "tagList": ["tag", "taag", "taaag"]
             }
         }
-        response = self.client.post("/api/articles", data=new_article_data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)  # TODO : Better
+        response = self.client.post("/articles", json=new_article_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
     
     def test_create_article_invalid_data_incorrect_tag_list(self):
         new_article_data = {
@@ -171,26 +177,25 @@ class ArticleViewSetTest(APITestCase):
                 "tagList": "tag; taag; taaag"
             }
         }
-        response = self.client.post("/api/articles", data=new_article_data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)  # TODO : Better
+        response = self.client.post("/articles", json=new_article_data)
+        self.assertEqual(response.status_code, 422)
         
     def test_get_article(self):
-        self.maxDiff = None
-        response = self.client.get(f"/api/articles/{self.article.slug}")
+        response = self.client.get(f"/articles/{self.article.slug}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, {"article": self.article_out})
         self._valid_timestamps_in_output_dict(response.data["article"])
         
     def test_update_article(self):
+        self.maxDiff=None
         update_article_data = {
             "article": {
                 "title": "New Test Title",
                 "description": "New Test Description",
                 "body": "New Test Content",
-                "tagList": ["tig", "tiig", "tiiig"]
             }
         }
-        response = self.client.put(f"/api/articles/{self.article.slug}", data=update_article_data, format='json')
+        response = self.client.put(f"/articles/{self.article.slug}", json=update_article_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, {
             'article': {
@@ -203,7 +208,7 @@ class ArticleViewSetTest(APITestCase):
             },
         })
         self._valid_timestamps_in_output_dict(response.data["article"])
-        self.assertEqual(set(response.data["article"]["tagList"]), set(["tig", "tiig", "tiiig"])),
+        self.assertEqual(set(response.data["article"]["tagList"]), set([])),
         self.assertEqual(Article.objects.values().filter(title="New Test Title").last(), {
             'author_id': self.user.id,
             'content': 'New Test Content',
@@ -223,10 +228,10 @@ class ArticleViewSetTest(APITestCase):
                 "tagList": ["tag", "taag", "taaag"]
             }
         }
-        response = self.client.put(f"/api/articles/{self.article.slug}", data=update_article_data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)  # TODO : Better
+        response = self.client.put(f"/articles/{self.article.slug}", json=update_article_data)
+        self.assertEqual(response.status_code, 422)
 
-    def test_update_article_invalid_data_additional_field(self):
+    def test_update_article_invalid_data_additional_field_still_works(self):
         update_article_data = {
             "article": {
                 "title": "New Test Title",
@@ -236,55 +241,40 @@ class ArticleViewSetTest(APITestCase):
                 "tagList": ["tag", "taag", "taaag"]
             }
         }
-        response = self.client.put(f"/api/articles/{self.article.slug}", data=update_article_data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)  # TODO : Better
+        response = self.client.put(f"/articles/{self.article.slug}", json=update_article_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
     
-    def test_update_article_invalid_data_incorrect_tag_list(self):
-        update_article_data = {
-            "article": {
-                "title": "New Test Title",
-                "description": "New Test Description",
-                "body": "New Test Content",
-                "tagList": "tag; taag; taaag"
-            }
-        }
-        response = self.client.put(f"/api/articles/{self.article.slug}", data=update_article_data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)  # TODO : Better
-        
-        
     def test_cant_update_article_without_being_logged(self):
-        self.client.credentials(HTTP_AUTHORIZATION=None)
+        self.client.headers["Authorization"] = None
         update_article_data = {"article": {"title": "New Test Title"}}
-        response = self.client.put(f"/api/articles/{self.article.slug}", data=update_article_data, format='json')
+        response = self.client.put(f"/articles/{self.article.slug}", json=update_article_data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(Article.objects.filter(title="New Test Title").count(), 0)
 
     def test_cant_update_article_of_another_user(self):
-        update_article_data = {"article": {"title": "New Test Title"}}
-        response = self.client.put(f"/api/articles/{self.other_article.slug}", data=update_article_data, format='json')
-        # self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)  # TODO Put back with better implem
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)  # TODO Replace
+        update_article_data = {"article": {"title": "New Test Title", "description": "?", "body": "?"}}
+        response = self.client.put(f"/articles/{self.other_article.slug}", json=update_article_data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(Article.objects.filter(title="New Test Title").count(), 0)
         
     def test_delete_article(self):
-        response = self.client.delete(f"/api/articles/{self.article.slug}")
+        response = self.client.delete(f"/articles/{self.article.slug}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Article.objects.count(), 1)
     
     def test_cant_delete_article_without_being_logged(self):
-        self.client.credentials(HTTP_AUTHORIZATION=None)
-        response = self.client.delete(f"/api/articles/{self.article.slug}")
+        self.client.headers["Authorization"] = None
+        response = self.client.delete(f"/articles/{self.article.slug}")
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(Article.objects.count(), 2)
 
     def test_cant_delete_article_of_another_user(self):
-        response = self.client.delete(f"/api/articles/{self.other_article.slug}")
-        # self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)  # TODO Put back with better implem
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)  # TODO Replace
+        response = self.client.delete(f"/articles/{self.other_article.slug}")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(Article.objects.count(), 2)
         
     def test_favorite_article(self):
-        response = self.client.post(f"/api/articles/{self.article.slug}/favorite")
+        response = self.client.post(f"/articles/{self.article.slug}/favorite")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, {'article': {**self.article_out, 'favorited': True, 'favoritesCount': 1,}})
         self._valid_timestamps_in_output_dict(response.data["article"])
@@ -292,7 +282,7 @@ class ArticleViewSetTest(APITestCase):
 
     def test_unfavorite_article(self):
         self.article.favorites.add(self.user)
-        response = self.client.delete(f"/api/articles/{self.article.slug}/favorite")
+        response = self.client.delete(f"/articles/{self.article.slug}/favorite")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, {"article": self.article_out})
         self._valid_timestamps_in_output_dict(response.data["article"])

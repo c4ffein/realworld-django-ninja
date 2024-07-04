@@ -53,14 +53,14 @@ class Article(models.Model):
         self.slug = slugify(self.title)
         super().save(*args, **kwargs)
         
-    def get_absolute_url(self) -> str:
-        return reverse(
-            "article_detail",
-            kwargs={
-                "article_id": self.id,
-                "slug": self.slug,
-            }
-        )
+    #def get_absolute_url(self) -> str:
+    #    return reverse(
+    #        "article_detail",
+    #        kwargs={
+    #            "article_id": self.id,
+    #            "slug": self.slug,
+    #        }
+    #    )
         
     def as_markdown(self) -> str:
         return markdown.markdown(self.content, safe_mode="escape", extensions=["extra"])
