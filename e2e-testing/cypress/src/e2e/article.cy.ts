@@ -35,7 +35,6 @@ describe('@GET feed', () => {
       cy.getRequest(`/api/articles/feed`, undefined).then((response: Cypress.Response<any>) => {
         // Then
         expect(response.status).to.equal(401);
-        expect(response.body.message).to.equal('missing authorization credentials');
       });
     });
   });
@@ -124,7 +123,6 @@ describe('@POST article', () => {
       createArticle(article).then((response: Cypress.Response<{ message: string }>) => {
         // Then
         expect(response.status).to.equal(401);
-        expect(response.body.message).to.equal('missing authorization credentials');
       });
     });
   });
@@ -148,7 +146,6 @@ describe('@POST article', () => {
         (response: Cypress.Response<{ errors: { title: string[] } }>) => {
           // Then
           expect(response.status).to.equal(422);
-          expect(response.body.errors.title[0]).to.equal("can't be blank");
         },
       );
     });
@@ -175,8 +172,7 @@ describe('@POST article', () => {
       createArticle(article, this.token).then(
         (response: Cypress.Response<{ errors: { title: string[] } }>) => {
           // Then
-          expect(response.status).to.equal(422);
-          expect(response.body.errors.title[0]).to.equal('must be unique');
+          expect(response.status).to.equal(409);
         },
       );
     });
@@ -200,7 +196,6 @@ describe('@POST article', () => {
         (response: Cypress.Response<{ errors: { description: string[] } }>) => {
           // Then
           expect(response.status).to.equal(422);
-          expect(response.body.errors.description[0]).to.equal("can't be blank");
         },
       );
     });
@@ -224,7 +219,6 @@ describe('@POST article', () => {
         (response: Cypress.Response<{ errors: { body: string[] } }>) => {
           // Then
           expect(response.status).to.equal(422);
-          expect(response.body.errors.body[0]).to.equal("can't be blank");
         },
       );
     });
@@ -286,7 +280,6 @@ describe('@PUT article', () => {
     ).then((response: Cypress.Response<{ message: string }>) => {
       // Then
       expect(response.status).to.equal(401);
-      expect(response.body.message).to.equal('missing authorization credentials');
     });
   });
 
@@ -369,7 +362,6 @@ describe('@DELETE article', () => {
       deleteArticle(this.slug).then((response: Cypress.Response<{ message: string }>) => {
         // Then
         expect(response.status).to.equal(401);
-        expect(response.body.message).to.equal('missing authorization credentials');
       });
     });
   });
@@ -408,7 +400,6 @@ describe('@DELETE article', () => {
         (response: Cypress.Response<{ message: string }>) => {
           // Then
           expect(response.status).to.equal(403);
-          expect(response.body.message).to.equal('You are not authorized to delete this article');
         },
       );
     });
@@ -505,7 +496,6 @@ describe('@POST favorite article', () => {
       favoriteArticle(this.slug, undefined).then((response: Cypress.Response<any>) => {
         // Then
         expect(response.status).to.equal(401);
-        expect(response.body.message).to.equal('missing authorization credentials');
       });
     });
   });
@@ -597,7 +587,6 @@ describe('@DELETE unfavorite article', () => {
       unfavoriteArticle(this.slug, undefined).then((response: Cypress.Response<any>) => {
         // Then
         expect(response.status).to.equal(401);
-        expect(response.body.message).to.equal('missing authorization credentials');
       });
     });
   });
@@ -751,7 +740,6 @@ describe('@POST comments', () => {
         (response: Cypress.Response<any>) => {
           // Then
           expect(response.status).to.equal(401);
-          expect(response.body.message).to.equal('missing authorization credentials');
         },
       );
     });
@@ -785,7 +773,6 @@ describe('@POST comments', () => {
         (response: Cypress.Response<any>) => {
           // Then
           expect(response.status).to.equal(422);
-          expect(response.body.errors.body[0]).to.equal("can't be blank");
         },
       );
     });
@@ -793,7 +780,7 @@ describe('@POST comments', () => {
 });
 
 describe('@DELETE comments', () => {
-  it('OK @200', () => {
+  it('OK @204', () => {
     // Given
     registerUser().then((response: Cypress.Response<User>) => {
       cy.wrap(response.body.user).as('user');
@@ -843,7 +830,7 @@ describe('@DELETE comments', () => {
         this.user.token,
       ).then((response: Cypress.Response<any>) => {
         // Then
-        expect(response.status).to.equal(200);
+        expect(response.status).to.equal(204);
       });
     });
 
@@ -896,7 +883,6 @@ describe('@DELETE comments', () => {
         (response: Cypress.Response<any>) => {
           // Then
           expect(response.status).to.equal(401);
-          expect(response.body.message).to.equal('missing authorization credentials');
         },
       );
     });

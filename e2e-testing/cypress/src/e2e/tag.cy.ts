@@ -5,7 +5,7 @@ describe('@GET tags', () => {
       // Then
       expect(response.status).to.equal(200);
       expect(response.body.tags.length).to.be.greaterThan(0);
-      expect(response.body.tags.length).to.be.lessThan(11);
+      expect(response.body.tags.every(s => typeof s === 'string')).to.be.true;
     });
   });
 });

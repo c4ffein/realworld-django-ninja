@@ -87,6 +87,9 @@ describe('@POST follow user', () => {
           expect(response.body.articles[0].body).to.equal(article.body);
           expect(response.body.articles[0].tagList).to.deep.equal(article.tagList);
           expect(response.body.articles[0].author.username).to.equal(this.user.username);
+          expect(response.body.articles[0].author.bio).to.equal(null);
+          expect(response.body.articles[0].author.image).to.equal('https://api.realworld.io/images/smiley-cyrus.jpeg');
+          expect(response.body.articles[0].author.following).to.equal(true);
         },
       );
     });

@@ -10,7 +10,10 @@ export function registerUser(
   },
 ): Cypress.Chainable {
   return cy.postRequest('/api/users', {
-    user,
+    user: {
+        ...user,
+        email: user.email.includes("@") ? user.email : `${user.email}@django-ninja.dev`,
+    },
   });
 }
 
