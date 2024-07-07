@@ -1,10 +1,14 @@
+from typing import Optional, Union
+
 from ninja import Schema, ModelSchema, Field
-from pydantic import AfterValidator, ConfigDict, EmailStr, field_validator, ValidationInfo
+from pydantic import AfterValidator, ConfigDict, EmailStr, field_validator, ValidationInfo, SerializeAsAny, validator
 from datetime import datetime
 
 from accounts.schemas import ProfileSchema
 from articles.models import Article
 
+
+EMPTY = object()
 
 
 class ArticleOutSchema(ModelSchema):
@@ -35,28 +39,32 @@ class ArticleOutSchema(ModelSchema):
         return obj.tags if isinstance(obj.tags, list) else [t.name for t in obj.tags.all()]
 
 
-class ArticleInCreateSchema(ModelSchema):
+class ArticleInCreateSchema(Schema):
+    title: str
     summary: str = Field(alias="description")
     content: str = Field(alias="body")
-    tags: list[str] = Field(alias="tagList")
+    tags: SerializeAsAny[list[str]] = Field(EMPTY, alias="tagList")
 
-    class Meta:
-        model = Article
-        fields = ["title"]
+    @validator("content", "summary", "title")
+    def check_not_empty(cls, v):
+        assert v != "", "can't be blank"
+        return v
 
 
 class ArticleCreateSchema(Schema):
     article: ArticleInCreateSchema
 
 
-class ArticleInUpdateSchema(ModelSchema):
-    summary: str = Field(alias="description")
-    content: str = Field(alias="body")
+class ArticleInPartialUpdateSchema(Schema):
+    title: SerializeAsAny[str] = EMPTY
+    summary: SerializeAsAny[str] = Field(EMPTY, alias="description")
+    content: SerializeAsAny[str] = Field(EMPTY, alias="body")
 
-    class Meta:
-        model = Article
-        fields = ["title"]
+    @validator("content", "summary", "title")
+    def check_not_empty(cls, v):
+        assert v != "", "can't be blank"
+        return v
 
 
-class ArticleUpdateSchema(Schema):
-    article: ArticleInUpdateSchema
+class ArticlePartialUpdateSchema(Schema):
+    article: ArticleInPartialUpdateSchema

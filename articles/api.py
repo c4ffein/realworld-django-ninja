@@ -28,11 +28,9 @@ from ninja import Router
 
 from accounts.models import User
 from articles.models import Article
-from articles.serializers import ArticleSerializer, TagSerializer
-from articles.filters import ArticleFilter
 from django.urls import path, include 
 from rest_framework.routers import DefaultRouter
-from articles.schemas import ArticleCreateSchema, ArticleOutSchema, ArticleUpdateSchema
+from articles.schemas import ArticleCreateSchema, ArticleOutSchema, ArticlePartialUpdateSchema, EMPTY
 
 
 router = Router()
@@ -50,12 +48,12 @@ def favorite(request, slug):
 @router.delete('/articles/{slug}/favorite', auth=AuthJWT(), response={200: Any, 404: Any})
 def unfavorite(request, slug):
     article = get_object_or_404(Article, slug=slug)
-    _ = get_object_or_404(article.favorites, id=request.user.id)
+    get_object_or_404(article.favorites, id=request.user.id)
     article.favorites.remove(request.user.id)
     return {"article": ArticleOutSchema.from_orm(article, context={"request": request})}
 
 
-@router.get('/articles/feed', response={200: Any, 404: Any})
+@router.get('/articles/feed', auth=AuthJWT(), response={200: Any, 404: Any})
 def feed(request):
     followed_authors = User.objects.filter(followers=request.user)
     articles = [a for a in Article.objects.filter(author__in=followed_authors).order_by('-created')]
@@ -70,35 +68,48 @@ def list_articles(request):
     return {"articles": [ArticleOutSchema.from_orm(a, context={"request": request}) for a in Article.objects.all()]}
 
 
-@router.post('/articles', auth=AuthJWT(), response={201: Any, 422: Any})
+@router.post('/articles', auth=AuthJWT(), response={201: Any, 409: Any, 422: Any})
 def create_article(request, data: ArticleCreateSchema):
-    article = Article.objects.create(**{**data.article.dict(), "author": request.user})
+    with transaction.atomic():
+        try:
+            article = Article.objects.create(
+                **{k: v for k, v in data.article.dict().items() if k != "tags"},
+                author=request.user,
+            )
+        except IntegrityError as err:
+            return 409, {"already_existing": clean_integrity_error(err)}
+        if data.article.tags != EMPTY:
+            for tag_name in data.article.tags:
+                article.tags.add(tag_name)
+        article.save()
     return 201, {"article": ArticleOutSchema.from_orm(article, context={"request": request})}
 
 
-@router.get('/articles/{slug}', response={200: Any, 404: Any})
+@router.get('/articles/{slug}', auth=AuthJWT(pass_even=True), response={200: Any, 404: Any})
 def retrieve(request, slug: str):
     article = get_object_or_404(Article, slug=slug)
     return {"article": ArticleOutSchema.from_orm(article, context={"request": request})}
 
 
-@router.delete('/articles/{slug}', auth=AuthJWT(), response={200: Any, 404: Any, 403: Any, 401: Any})
+@router.delete('/articles/{slug}', auth=AuthJWT(), response={204: Any, 404: Any, 403: Any, 401: Any})
 def destroy(request, slug: str):
     article = get_object_or_404(Article, slug=slug)
     if request.user != article.author:
         return 403, None
     article.delete()
+    return 204, None
 
 
 @router.put('/articles/{slug}', auth=AuthJWT(), response={200: Any, 404: Any, 403: Any, 401: Any})
-def update(request, slug: str, data: ArticleUpdateSchema):
+def update(request, slug: str, data: ArticlePartialUpdateSchema):
+    """This is wrong, but this method behaves like a PATCH, as required by the RealWorld API spec"""
     article = get_object_or_404(Article, slug=slug)
     if request.user != article.author:
         return 403, None
     # Doing this to trigger slug-recalculation for now
-    article.title = data.article.title
-    article.summary = data.article.summary
-    article.content = data.article.content
+    article.title = data.article.title if data.article.title != EMPTY else article.title
+    article.summary = data.article.summary if data.article.summary != EMPTY else article.summary
+    article.content = data.article.content if data.article.content != EMPTY else article.content
     article.save()
     return {"article": ArticleOutSchema.from_orm(article, context={"request": request})}
 

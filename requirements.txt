@@ -6,7 +6,6 @@ djangorestframework == 3.14.0
 djangorestframework-simplejwt == 5.2.2
 django-cors-headers == 4.3.1
 django-extensions==3.2.3
-django-filter == 23.2
 django-ninja == 1.1.0
 django-ninja-jwt == 5.3.1
 django-taggit == 4.0.0

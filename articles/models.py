@@ -30,7 +30,7 @@ ArticleManager = models.Manager.from_queryset(ArticleQuerySet)
 
 class Article(models.Model):
     author =  models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    title = models.CharField(max_length=150, unique=True)
+    title = models.CharField(max_length=150, unique=True, blank=False)
     summary = models.TextField(blank=True)
     content = models.TextField(blank=True)
     

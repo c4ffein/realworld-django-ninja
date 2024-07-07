@@ -103,9 +103,13 @@ class ArticleViewSetTest(APITestCase):
             ],
         })
         self._valid_timestamps_in_output_dict(loads(response.content)["articles"][0])
+
+    def test_get_article_feed_ko(self):
+        self.client.headers["Authorization"] = None
+        response = self.client.get("/articles/feed", user=None)
+        self.assertEqual(response.status_code, 401)
         
     def test_create_article(self):
-        self.maxDiff = None
         new_article_data = {
             "article": {
                 "title": "New Test Title",
@@ -141,9 +145,61 @@ class ArticleViewSetTest(APITestCase):
             'slug': 'new-test-title',
             'summary': 'New Test Description',
             'title': 'New Test Title',
+            'updated': mock.ANY,
+        })
+        self.assertEqual(set(t.name for t in Article.objects.last().tags.all()), {"tag", "taag", "taaag"})
+
+    def test_create_article_without_tag_field(self):
+        new_article_data = {
+            "article": {
+                "title": "New Test Title",
+                "description": "New Test Description",
+                "body": "New Test Content",
+            }
+        }
+        response = self.client.post("/articles", json=new_article_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data, {
+            'article': {
+                'slug': 'new-test-title',
+                'title': 'New Test Title',
+                'description': 'New Test Description',
+                'body': 'New Test Content',
+                'tagList': mock.ANY,
+                'createdAt': mock.ANY,
+                'updatedAt': mock.ANY,
+                'favorited': False,
+                'favoritesCount': 0,
+                'author': {'username': 'testuser', 'bio': None, 'image': self.default_image, 'following': False},
+            },
+        })
+        self._valid_timestamps_in_output_dict(response.data["article"])
+        self.assertEqual(response.data["article"]["tagList"], []),
+        self.assertEqual(Article.objects.count(), 3)
+        self.assertEqual(Article.objects.values().last(), {
+            'author_id': self.user.id,
+            'content': 'New Test Content',
+            'created': mock.ANY,
+            'id': Article.objects.last().id,
+            'slug': 'new-test-title',
+            'summary': 'New Test Description',
+            'title': 'New Test Title',
             'updated': mock.ANY, 
         })
-    
+        self.assertEqual(set(t.name for t in Article.objects.last().tags.all()), set())
+
+    def test_create_article_invalid_data_0_len_title(self):
+        new_article_data = {
+            "article": {
+                "title": "",
+                "description": "New Test Description",
+                "body": "New Test Content",
+                "tagList": ["tag", "taag", "taaag"]
+            }
+        }
+        response = self.client.post("/articles", json=new_article_data)
+        self.assertEqual(response.status_code, 422)
+
     def test_create_article_invalid_data_missing_field(self):
         new_article_data = {
             "article": {
@@ -187,7 +243,6 @@ class ArticleViewSetTest(APITestCase):
         self._valid_timestamps_in_output_dict(response.data["article"])
         
     def test_update_article(self):
-        self.maxDiff=None
         update_article_data = {
             "article": {
                 "title": "New Test Title",
@@ -219,17 +274,33 @@ class ArticleViewSetTest(APITestCase):
             'title': 'New Test Title',
             'updated': mock.ANY, 
         })
-    
-    def test_update_article_invalid_data_missing_field(self):
-        update_article_data = {
-            "article": {
-                "description": "New Test Description",
-                "body": "New Test Content",
-                "tagList": ["tag", "taag", "taaag"]
-            }
-        }
+
+    # TODO : parameterize for 3 fields
+    def test_update_article_description_only(self):
+        updated_db_key, updated_json_key, updated_data = "summary", "description", "New Test Description"
+        update_article_data = {"article": {updated_json_key: updated_data}}
         response = self.client.put(f"/articles/{self.article.slug}", json=update_article_data)
-        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {
+            'article': {
+                **self.article_out,
+                "tagList": mock.ANY,
+                updated_json_key: updated_data,
+            },
+        })
+        self._valid_timestamps_in_output_dict(response.data["article"])
+        self.assertEqual(set(response.data["article"]["tagList"]), set([])),
+        self.assertEqual(Article.objects.values().filter(title="Test Title").last(), {
+            'author_id': self.user.id,
+            'content': 'Test content',
+            'created': mock.ANY,
+            'id': self.article.id,
+            'slug': 'test-title',
+            'summary': 'Test Description',
+            'title': 'Test Title',
+            'updated': mock.ANY,
+            updated_db_key: updated_data,
+        })
 
     def test_update_article_invalid_data_additional_field_still_works(self):
         update_article_data = {
@@ -259,7 +330,7 @@ class ArticleViewSetTest(APITestCase):
         
     def test_delete_article(self):
         response = self.client.delete(f"/articles/{self.article.slug}")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, 204)
         self.assertEqual(Article.objects.count(), 1)
     
     def test_cant_delete_article_without_being_logged(self):

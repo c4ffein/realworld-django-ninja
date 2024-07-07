@@ -16,4 +16,6 @@ class HeaderedClient(TestClient):
             setattr(r, "data", loads(r.content))
         except decoder.JSONDecodeError:
             setattr(r, "data", None)
+        except UnicodeDecodeError:
+            setattr(r, "data", None)
         return r
