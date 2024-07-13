@@ -40,10 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # 3rd Party Packages,
-    "rest_framework",
-    "rest_framework_simplejwt",
     "taggit",
-    "drf_yasg",
     "corsheaders",
     "django_extensions",
     # local Apps,
@@ -146,13 +143,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "accounts.User"
 
-REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ]
-}
-
 # JWT token settings
+# TODO : Check still used by new JWT
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=7),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),

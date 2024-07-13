@@ -3,7 +3,7 @@ import re
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-from rest_framework_simplejwt.tokens import AccessToken
+from ninja_jwt.tokens import AccessToken
 
 from helpers.headered_client import HeaderedClient
 

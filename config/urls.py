@@ -20,9 +20,6 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from ninja import NinjaAPI
-from rest_framework import permissions
-from drf_yasg.views import get_schema_view
-from drf_yasg import openapi
 
 
 api_prefix = "api"
@@ -33,19 +30,21 @@ api.add_router(f"/{api_prefix}", "articles.api.router")
 api.add_router(f"/{api_prefix}", "comments.api.router")
 api.add_router("/images", "image_server.api.router")
 
-schema_view = get_schema_view(
-    openapi.Info(
-        title="Real World API",
-        default_version="v1",
-        description="Real World API Documentation",
-    ),
-    public=True,
-    permission_classes=(permissions.AllowAny,),
-)
+# TODO : Replace this initial drf_yasg code
+# schema_view = get_schema_view(
+#     openapi.Info(
+#         title="Real World API",
+#         default_version="v1",
+#         description="Real World API Documentation",
+#     ),
+#     public=True,
+#     permission_classes=(permissions.AllowAny,),
+# )
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("swagger/", schema_view.with_ui("swagger", cache_timeout=0), name="schema-redoc"),
+    # TODO : Replace this initial drf_yasg code
+    # path("swagger/", schema_view.with_ui("swagger", cache_timeout=0), name="schema-redoc"),
     path("", api.urls),
 ]
 

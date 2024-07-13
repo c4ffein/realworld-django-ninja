@@ -7,7 +7,7 @@ from django.db import transaction
 from parameterized import parameterized
 from rest_framework import status
 from rest_framework.test import APITestCase
-from rest_framework_simplejwt.tokens import AccessToken
+from ninja_jwt.tokens import AccessToken
 
 
 User = get_user_model()

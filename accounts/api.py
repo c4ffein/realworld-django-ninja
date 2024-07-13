@@ -5,7 +5,7 @@ from django.conf import settings
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from ninja import Router
-from rest_framework_simplejwt.tokens import AccessToken
+from ninja_jwt.tokens import AccessToken
 
 from accounts.schemas import (
     EMPTY,
