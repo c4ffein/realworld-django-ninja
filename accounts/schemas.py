@@ -1,8 +1,8 @@
-from typing import Annotated, Optional, Union
+from typing import Annotated, Optional
 
 from django.conf import settings
-from ninja import Field, ModelSchema, Schema
-from pydantic import AfterValidator, ConfigDict, EmailStr, field_validator, ValidationInfo
+from ninja import ModelSchema, Schema
+from pydantic import AfterValidator, EmailStr, field_validator, ValidationInfo
 
 from accounts.models import User
 

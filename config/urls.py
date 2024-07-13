@@ -14,8 +14,9 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from ninja import NinjaAPI
@@ -24,18 +25,18 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
 
-api_prefix = 'api'
+api_prefix = "api"
 
 api = NinjaAPI()
 api.add_router(f"/{api_prefix}", "accounts.api.router")
 api.add_router(f"/{api_prefix}", "articles.api.router")
 api.add_router(f"/{api_prefix}", "comments.api.router")
-api.add_router(f"/images", "image_server.api.router")
+api.add_router("/images", "image_server.api.router")
 
 schema_view = get_schema_view(
     openapi.Info(
         title="Real World API",
-        default_version='v1',
+        default_version="v1",
         description="Real World API Documentation",
     ),
     public=True,
@@ -43,9 +44,9 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-redoc'),
-    path(f'', api.urls),
+    path("admin/", admin.site.urls),
+    path("swagger/", schema_view.with_ui("swagger", cache_timeout=0), name="schema-redoc"),
+    path("", api.urls),
 ]
 
 if settings.DEBUG:

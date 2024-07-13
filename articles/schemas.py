@@ -1,7 +1,5 @@
-from typing import Optional, Union
-
 from ninja import Schema, ModelSchema, Field
-from pydantic import AfterValidator, ConfigDict, EmailStr, field_validator, ValidationInfo, SerializeAsAny, validator
+from pydantic import SerializeAsAny, validator
 from datetime import datetime
 
 from accounts.schemas import ProfileSchema
@@ -23,7 +21,7 @@ class ArticleOutSchema(ModelSchema):
 
     class Meta:
         model = Article
-        fields = ['slug', 'title']
+        fields = ["slug", "title"]
 
     @staticmethod
     def resolve_favorited(obj, context) -> bool:

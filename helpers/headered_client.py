@@ -9,7 +9,7 @@ class HeaderedClient(TestClient):
         self.headers = kwargs.pop("headers", {})
         super().__init__(*args, **kwargs)
 
-    def request(self, method, path, data = {}, json = None, **request_params: Any):
+    def request(self, method, path, data={}, json=None, **request_params: Any):
         request_params["headers"] = {**self.headers, **request_params.get("headers", {})}
         r = super().request(method, path, data, json, **request_params)
         try:

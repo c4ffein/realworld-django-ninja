@@ -2,7 +2,7 @@
 name = "realworlddrf"
 version = "0.1.0"
 description = ""
-authors = ["Sean-Miningah <seanpminingah@gmail.com>"]
+authors = ["Sean-Miningah <seanpminingah@gmail.com>", "c4ffein <c4ffein@protonmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
@@ -17,6 +17,39 @@ django-filter = "^23.2"
 drf-yasg = "^1.21.6"
 coreapi = "^2.3.3"
 psycopg2 = "^2.9.6"
+ruff = "^0.5.1"
+
+
+[tool.ruff]
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+line-length = 120
 
 
 [build-system]

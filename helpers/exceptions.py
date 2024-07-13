@@ -7,5 +7,5 @@ def clean_integrity_error(error):
         if not isinstance(error.__cause__, UniqueViolation):
             return None
         return error.__cause__.args[0].split(":")[1].split("(")[1].split(")")[0]
-    except:
+    except Exception:
         return None

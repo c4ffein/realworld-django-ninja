@@ -1,6 +1,4 @@
-from ninja import Field, Schema
-
-from comments.models import Comment
+from ninja import Schema
 
 
 class CommentSchemaIn(Schema):

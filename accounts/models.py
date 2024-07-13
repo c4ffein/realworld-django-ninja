@@ -6,7 +6,7 @@ from django.db import models
 class UserManager(BaseUserManager):
     def create_user(self, email: str, password: str | None = None, **other_fields) -> User:
         user = User(email=email, **other_fields)
-        if password: 
+        if password:
             user.set_password(password)
         else:
             user.set_unusable_password()
@@ -17,7 +17,7 @@ class UserManager(BaseUserManager):
         other_fields.setdefault("is_staff", True)
         other_fields.setdefault("is_superuser", True)
         other_fields.setdefault("is_active", True)
-        
+
         if other_fields.get("is_staff") is not True:
             raise ValueError("Superuser must be assigned to is_staff=True.")
         if other_fields.get("is_superuser") is not True:
@@ -26,7 +26,6 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractUser):
-
     # remove default fields
     first_name = None
     last_name = None
