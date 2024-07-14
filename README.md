@@ -39,6 +39,10 @@ make sure you a postgres database configured for connection
 Run:
 > docker compose up
 
+## Testing
+- Django Ninja tests: `./manage.py test`
+- E2E Cypress tests: in `e2e-testing/cypress`, `npm test`
+
 # API Documentation 
 
 The project provides API documentation using Swagger. To access the API documentation, follow these steps:
@@ -74,6 +78,7 @@ If you would like to contribute to the project, please follow these guidelines:
 - Better debug env variable and settings in general
 - Also port Playwright
 - Explain a bit commit history, which ones are good to see a simple migration, before some of the whole lint + full modifications
+- Explain better what is realworld and how to run the full project, maybe including a frontend as a git submodule to run fully e2e tests
 - Decide what to do with static
 
 # License
