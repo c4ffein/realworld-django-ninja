@@ -73,7 +73,6 @@ If you would like to contribute to the project, please follow these guidelines:
 - Real checks with frontend apps, probably picking one of those for a demo
 - Better debug env variable and settings in general
 - Also port Playwright
-- Totally remove DRF
 - Explain a bit commit history, which ones are good to see a simple migration, before some of the whole lint + full modifications
 - Decide what to do with static
 
