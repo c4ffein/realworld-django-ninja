@@ -3,8 +3,7 @@ import re
 from json import loads
 
 from django.contrib.auth import get_user_model
-from rest_framework.test import APITestCase
-from rest_framework import status
+from django.test import TestCase
 from ninja_jwt.tokens import AccessToken
 
 from articles.models import Article
@@ -15,7 +14,7 @@ from helpers.headered_client import HeaderedClient
 User = get_user_model()
 
 
-class ArticleViewSetTest(APITestCase):
+class ArticleViewSetTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", email="test@email.test", password="testpassword")
         access_token = self.access_token = str(AccessToken.for_user(self.user))
@@ -72,14 +71,14 @@ class ArticleViewSetTest(APITestCase):
 
     def test_get_articles(self):
         response = self.client.get("/articles", user=self.user)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data.get("articles", None), [self.article_out, self.other_article_out])
         self._valid_timestamps_in_output_dict(response.data.get("articles", None)[0])
         self._valid_timestamps_in_output_dict(response.data.get("articles", None)[1])
 
     def test_get_article_feed(self):
         response = self.client.get("/articles/feed", user=self.user)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.data,
             {
@@ -122,7 +121,7 @@ class ArticleViewSetTest(APITestCase):
             }
         }
         response = self.client.post("/articles", json=new_article_data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, 201)
         self.assertEqual(
             response.data,
             {
@@ -167,7 +166,7 @@ class ArticleViewSetTest(APITestCase):
             }
         }
         response = self.client.post("/articles", json=new_article_data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, 201)
         self.assertEqual(
             response.data,
             {
@@ -237,7 +236,7 @@ class ArticleViewSetTest(APITestCase):
             }
         }
         response = self.client.post("/articles", json=new_article_data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, 201)
 
     def test_create_article_invalid_data_incorrect_tag_list(self):
         new_article_data = {
@@ -253,7 +252,7 @@ class ArticleViewSetTest(APITestCase):
 
     def test_get_article(self):
         response = self.client.get(f"/articles/{self.article.slug}")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, {"article": self.article_out})
         self._valid_timestamps_in_output_dict(response.data["article"])
 
@@ -266,7 +265,7 @@ class ArticleViewSetTest(APITestCase):
             }
         }
         response = self.client.put(f"/articles/{self.article.slug}", json=update_article_data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.data,
             {
@@ -301,7 +300,7 @@ class ArticleViewSetTest(APITestCase):
         updated_db_key, updated_json_key, updated_data = "summary", "description", "New Test Description"
         update_article_data = {"article": {updated_json_key: updated_data}}
         response = self.client.put(f"/articles/{self.article.slug}", json=update_article_data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.data,
             {
@@ -340,19 +339,19 @@ class ArticleViewSetTest(APITestCase):
             }
         }
         response = self.client.put(f"/articles/{self.article.slug}", json=update_article_data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, 200)
 
     def test_cant_update_article_without_being_logged(self):
         self.client.headers["Authorization"] = None
         update_article_data = {"article": {"title": "New Test Title"}}
         response = self.client.put(f"/articles/{self.article.slug}", json=update_article_data)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, 401)
         self.assertEqual(Article.objects.filter(title="New Test Title").count(), 0)
 
     def test_cant_update_article_of_another_user(self):
         update_article_data = {"article": {"title": "New Test Title", "description": "?", "body": "?"}}
         response = self.client.put(f"/articles/{self.other_article.slug}", json=update_article_data)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, 403)
         self.assertEqual(Article.objects.filter(title="New Test Title").count(), 0)
 
     def test_delete_article(self):
@@ -363,17 +362,17 @@ class ArticleViewSetTest(APITestCase):
     def test_cant_delete_article_without_being_logged(self):
         self.client.headers["Authorization"] = None
         response = self.client.delete(f"/articles/{self.article.slug}")
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, 401)
         self.assertEqual(Article.objects.count(), 2)
 
     def test_cant_delete_article_of_another_user(self):
         response = self.client.delete(f"/articles/{self.other_article.slug}")
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, 403)
         self.assertEqual(Article.objects.count(), 2)
 
     def test_favorite_article(self):
         response = self.client.post(f"/articles/{self.article.slug}/favorite")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.data,
             {
@@ -390,15 +389,19 @@ class ArticleViewSetTest(APITestCase):
     def test_unfavorite_article(self):
         self.article.favorites.add(self.user)
         response = self.client.delete(f"/articles/{self.article.slug}/favorite")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, {"article": self.article_out})
         self._valid_timestamps_in_output_dict(response.data["article"])
         self.assertEqual(self.article.favorites.count(), 0)
 
 
-class TagViewSet(APITestCase):
+class TagViewSet(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", email="test@email.test", password="testpassword")
+        access_token = self.access_token = str(AccessToken.for_user(self.user))
+        self.client = HeaderedClient(
+            router, headers={"Authorization": f"Token {access_token}", "Content-Type": "application/json"}
+        )
         self.article = Article.objects.create(
             author=self.user,
             title="Test Title",
@@ -409,8 +412,8 @@ class TagViewSet(APITestCase):
         self.article.tags.add("red", "green", "blue")
 
     def test_list_tags(self):
-        response = self.client.get("/api/tags")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get("/tags")
+        self.assertEqual(response.status_code, 200)
         data = loads(response.content)
         self.assertEqual(data, {"tags": mock.ANY})
         self.assertEqual(set(data["tags"]), {"red", "green", "blue"})

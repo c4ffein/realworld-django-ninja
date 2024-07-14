@@ -75,6 +75,7 @@ If you would like to contribute to the project, please follow these guidelines:
 - Also port Playwright
 - Totally remove DRF
 - Explain a bit commit history, which ones are good to see a simple migration, before some of the whole lint + full modifications
+- Decide what to do with static
 
 # License
 - The [original code](https://github.com/Sean-Miningah/realWorld-DjangoRestFramework) is a [Django REST framework](https://www.django-rest-framework.org/) project made by [Sean-Miningah](https://github.com/Sean-Miningah/) and released under the [MIT License](https://github.com/Sean-Miningah/realWorld-DjangoRestFramework/blob/master/LICENSE).
