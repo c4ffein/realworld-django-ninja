@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "realworlddrf"
+name = "realworld-django-ninja"
 version = "0.1.0"
 description = ""
 authors = ["Sean-Miningah <seanpminingah@gmail.com>", "c4ffein <c4ffein@protonmail.com>"]
