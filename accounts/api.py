@@ -71,9 +71,9 @@ def put_user(request, data: UserPartialUpdateInSchema) -> UserPartialUpdateOutSc
     """This is wrong, but this method behaves like a PATCH, as required by the RealWorld API spec"""
     for word in ("email", "bio", "image", "username"):
         value = getattr(data.user, word)
-        if value is not EMPTY:
+        if value != EMPTY:
             setattr(request.user, word, value)
-    if data.user.password is not EMPTY:
+    if data.user.password != EMPTY:
         request.user.set_password(data.user.password)
     request.user.save()
     token = AccessToken.for_user(request.user)

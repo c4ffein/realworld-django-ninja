@@ -5,9 +5,7 @@ from ninja import ModelSchema, Schema
 from pydantic import AfterValidator, EmailStr, field_validator, ValidationInfo
 
 from accounts.models import User
-
-
-EMPTY = object()
+from helpers.empty import EMPTY
 
 
 def none_to_blank(v: Optional[str], info: ValidationInfo) -> str:

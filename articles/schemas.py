@@ -2,11 +2,9 @@ from ninja import Schema, ModelSchema, Field
 from pydantic import SerializeAsAny, validator
 from datetime import datetime
 
+from helpers.empty import EMPTY
 from accounts.schemas import ProfileSchema
 from articles.models import Article
-
-
-EMPTY = object()
 
 
 class ArticleOutSchema(ModelSchema):

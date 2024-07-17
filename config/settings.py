@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # Needed for auto-host of Swagger files
+    "ninja",
     # 3rd Party Packages,
     "taggit",
     "corsheaders",

@@ -6,11 +6,12 @@ from ninja import Router
 
 from accounts.models import User
 from helpers.auth import AuthJWT
+from helpers.empty import EMPTY
 from helpers.exceptions import clean_integrity_error
 from taggit.models import Tag
 
 from articles.models import Article
-from articles.schemas import ArticleCreateSchema, ArticleOutSchema, ArticlePartialUpdateSchema, EMPTY
+from articles.schemas import ArticleCreateSchema, ArticleOutSchema, ArticlePartialUpdateSchema
 
 
 router = Router()
