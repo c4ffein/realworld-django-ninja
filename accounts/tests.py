@@ -339,6 +339,14 @@ class ProfileDetailViewTestCase(TestCase):
         self.assertEqual(self.other_user.followers.count(), 1)
         self.assertEqual(self.other_user.followers.last().id, self.user.id)
 
+    def test_profile_detail_view_cant_follow_already_followed(self):
+        self.other_user.followers.add(self.user)
+        self.assertEqual(self.other_user.followers.count(), 1)
+        response = self.client.post(f"{self.other_url}/follow")
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(self.other_user.followers.count(), 1)
+        self.assertEqual(self.other_user.followers.last().id, self.user.id)
+
     def test_profile_detail_view_unfollow(self):
         self.other_user.followers.add(self.user)
         response = self.client.delete(f"{self.other_url}/follow")
@@ -353,17 +361,23 @@ class ProfileDetailViewTestCase(TestCase):
 
     def test_profile_detail_view_cant_unfollow_not_followed(self):
         response = self.client.delete(f"{self.other_url}/follow")
-        self.assertEqual(response.status_code, 400)  # TODO Better 409
+        self.assertEqual(response.status_code, 409)
 
     def test_profile_detail_view_cant_follow_yourself(self):
         response = self.client.post(f"/profiles/{self.user.username}/follow")
-        self.assertEqual(response.status_code, 400)  # TODO Better 409
+        self.assertEqual(response.status_code, 403)
+
+    def test_profile_detail_view_cant_unfollow_yourself(self):
+        response = self.client.delete(f"/profiles/{self.user.username}/follow")
+        self.assertEqual(response.status_code, 403)
 
     def test_profile_detail_view_cant_follow_nonexistent(self):
         response = self.client.post("/profiles/9000/follow")
         self.assertEqual(response.status_code, 404)
 
-    # TODO Exception with this new router as it cannot resolve obviously, decide if delete
-    # def test_profile_detail_view_cant_follow_wrong_path(self):
-    #     response = self.client.post(f"/profiles/{self.user.username}/follow/23")
-    #     self.assertEqual(response.status_code, 404)
+    def test_profile_detail_view_cant_follow_wrong_path(self):
+        try:
+            response = self.client.post(f"/profiles/{self.user.username}/follow/23")
+            self.assertEqual(response.status_code, 404)
+        except Exception as e:
+            self.assertEqual(e.args[0], 'Cannot resolve "/profiles/testuser/follow/23"')

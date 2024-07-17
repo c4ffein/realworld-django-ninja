@@ -85,21 +85,25 @@ def get_profiles(request, username: str):
     return {"profile": ProfileSchema.from_orm(get_object_or_404(User, username=username), context={"request": request})}
 
 
-@router.post("/profiles/{username}/follow", auth=AuthJWT(), response={200: Any, 400: Any, 404: Any})
+@router.post("/profiles/{username}/follow", auth=AuthJWT(), response={200: Any, 400: Any, 403: Any, 404: Any, 409: Any})
 def follow_profile(request, username: str):
     profile = get_object_or_404(User, username=username)
     if profile == request.user:
-        return 400, {"errors": {"body": ["Invalid follow Request"]}}
+        return 403, None
+    if profile.followers.filter(pk=request.user.id).exists():
+        return 409, None
     profile.followers.add(request.user)
     return {"profile": ProfileSchema.from_orm(profile, context={"request": request})}
 
 
-@router.delete("/profiles/{username}/follow", auth=AuthJWT(), response={200: Any, 400: Any, 404: Any})
+@router.delete(
+    "/profiles/{username}/follow", auth=AuthJWT(), response={200: Any, 400: Any, 403: Any, 404: Any, 409: Any}
+)
 def unfollow_profile(request, username: str):
     profile = get_object_or_404(User, username=username)
     if profile == request.user:
-        return 400, {"errors": {"body": ["Invalid follow Request"]}}
+        return 403, None
     if not profile.followers.filter(pk=request.user.id).exists():
-        return 400, {"errors": {"body": ["Invalid follow Request"]}}
+        return 409, None
     profile.followers.remove(request.user)
     return {"profile": ProfileSchema.from_orm(profile, context={"request": request})}

@@ -5,6 +5,7 @@ from json import loads
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from ninja_jwt.tokens import AccessToken
+from parameterized import parameterized
 
 from articles.models import Article
 from articles.api import router
@@ -295,9 +296,16 @@ class ArticleViewSetTest(TestCase):
             },
         )
 
-    # TODO : parameterize for 3 fields
-    def test_update_article_description_only(self):
-        updated_db_key, updated_json_key, updated_data = "summary", "description", "New Test Description"
+    @parameterized.expand(
+        [
+            ["title", "title", "New Test Title"],
+            ["summary", "description", "New Test Description"],
+            ["content", "body", "New Test Body"],
+        ]
+    )
+    def test_update_article_only_one_field(self, updated_db_key, updated_json_key, updated_data):
+        self.maxDiff = None
+        expected_slug = "test-title" if updated_db_key != "title" else "new-test-title"
         update_article_data = {"article": {updated_json_key: updated_data}}
         response = self.client.put(f"/articles/{self.article.slug}", json=update_article_data)
         self.assertEqual(response.status_code, 200)
@@ -307,6 +315,7 @@ class ArticleViewSetTest(TestCase):
                 "article": {
                     **self.article_out,
                     "tagList": mock.ANY,
+                    "slug": expected_slug,
                     updated_json_key: updated_data,
                 },
             },
@@ -314,16 +323,16 @@ class ArticleViewSetTest(TestCase):
         self._valid_timestamps_in_output_dict(response.data["article"])
         (self.assertEqual(set(response.data["article"]["tagList"]), set([])),)
         self.assertEqual(
-            Article.objects.values().filter(title="Test Title").last(),
+            Article.objects.values().filter(slug=expected_slug).last(),
             {
                 "author_id": self.user.id,
-                "content": "Test content",
                 "created": mock.ANY,
                 "id": self.article.id,
-                "slug": "test-title",
-                "summary": "Test Description",
-                "title": "Test Title",
+                "slug": expected_slug,
                 "updated": mock.ANY,
+                "title": "Test Title",
+                "summary": "Test summary",
+                "content": "Test content",
                 updated_db_key: updated_data,
             },
         )
