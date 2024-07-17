@@ -43,6 +43,10 @@ Run:
 - Django Ninja tests: `./manage.py test`
 - E2E Cypress tests: in `e2e-testing/cypress`, `npm test`
 
+## Deploying
+A [Django Ninja](https://django-ninja.dev/) project can be deployed just as any [https://www.djangoproject.com/](Django) project.
+[The documentation is near perfect.](https://docs.djangoproject.com/en/5.0/howto/deployment/)
+
 # API Documentation 
 
 The project provides API documentation using Swagger. To access the API documentation, follow these steps:
@@ -79,7 +83,7 @@ If you would like to contribute to the project, please follow these guidelines:
 - Also port Playwright
 - Explain a bit commit history, which ones are good to see a simple migration, before some of the whole lint + full modifications
 - Explain better what is realworld and how to run the full project, maybe including a frontend as a git submodule to run fully e2e tests
-- Decide what to do with static
+- Help about CORS?
 
 # License
 - The [original code](https://github.com/Sean-Miningah/realWorld-DjangoRestFramework) is a [Django REST framework](https://www.django-rest-framework.org/) project made by [Sean-Miningah](https://github.com/Sean-Miningah/) and released under the [MIT License](https://github.com/Sean-Miningah/realWorld-DjangoRestFramework/blob/master/LICENSE).
