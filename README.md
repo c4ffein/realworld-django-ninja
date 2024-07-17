@@ -48,16 +48,9 @@ A [Django Ninja](https://django-ninja.dev/) project can be deployed just as any 
 [The documentation is near perfect.](https://docs.djangoproject.com/en/5.0/howto/deployment/)
 
 # API Documentation 
+An auto-generated API documentation using [Swagger](https://swagger.io/) is available at the `/docs` route.
 
-The project provides API documentation using Swagger. To access the API documentation, follow these steps:
 
-Ensure that the project is running by executing the command mentioned in the "Usage" section.
-
-Open a web browser and navigate to the following endpoint:
-
-```bash
-/swagger
-```
 # Contributing
 If you would like to contribute to the project, please follow these guidelines:
 
