@@ -91,7 +91,7 @@ Seriously, yes, for anything that crosses your mind. This is early-stage, I'll c
   - Explain why https://github.com/gothinkster/realworld/blob/main/api/openapi.yml error management hasn't been followed
     - including 404 for everything
     - including error messages
-  - not really adding test before migration, should add some after but not doing it
+  - Explain why many tests have been added after and not before the migration
 - Real checks with frontend apps, probably picking one of those for a demo
 - Better debug env variable and settings in general
 - Also port Playwright
