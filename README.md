@@ -80,7 +80,7 @@ If you would like to contribute to the project, please follow these guidelines:
 Seriously, yes, for anything that crosses your mind. This is early-stage, I'll consider any opinion.
 
 ## Improvements / still TODO
-*Not creating specific issues for those, but still currently considered:*
+*I'm not creating specific issues for those as I just hope to finish all that soon enough (I wish), but you may do it if you want:*
 - Even better tests
 - Update Django-Ninja / Django
 - Better explain what has been done
