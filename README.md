@@ -97,7 +97,7 @@ Seriously, yes, for anything that crosses your mind. This is early-stage, I'll c
 - Also port Playwright
 - Also port [Postman](https://github.com/gothinkster/realworld/tree/main/api)
 - Explain a bit commit history, which ones are good to see a simple migration, before some of the whole lint + full modifications
-- Explain better what is realworld and how to run the full project, maybe including a frontend as a git submodule to run fully e2e tests
+- Maybe include a frontend as a git submodule to run fully e2e tests
 - Help about CORS?
 - CI with ruff + tests
 
