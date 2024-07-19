@@ -70,16 +70,11 @@ An auto-generated API documentation using [Swagger](https://swagger.io/) is avai
 
 ## Contributing
 If you would like to contribute to the project, please follow these guidelines:
-
-1. Fork the repository and create a new branch for your feature or bug fix.
-
-2. Make the necessary changes and commit them.
-
-2.b. `ruff format` and `ruff check` as I still haven't set-up a CI...
-
-3. Push your changes to your forked repository.
-
-4. Submit a pull request to the main repository, explaining the changes you made and any additional information that might be helpful for review.
+- Fork the repository and create a new branch for your feature or bug fix.
+- Make the necessary changes and commit them.
+  - `ruff format` and `ruff check` as I still haven't set-up a CI...
+- Push your changes to your forked repository.
+- Submit a pull request to the main repository, explaining the changes you made and any additional information that might be helpful for review.
 
 ### Should I create an issue?
 Seriously, yes, for anything that crosses your mind. This is early-stage, I'll consider any opinion.
