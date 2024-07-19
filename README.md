@@ -74,7 +74,8 @@ If you would like to contribute to the project, please follow these guidelines:
 1. Fork the repository and create a new branch for your feature or bug fix.
 
 2. Make the necessary changes and commit them.
-  b. `ruff format` and `ruff check` as I still haven't set-up a CI...
+
+2.b. `ruff format` and `ruff check` as I still haven't set-up a CI...
 
 3. Push your changes to your forked repository.
 
