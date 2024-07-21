@@ -8,7 +8,7 @@ from accounts.models import User
 
 
 class AuthJWT(HttpBearer, JWTBaseAuthentication):
-    openapi_scheme = "token"
+    openapi_scheme = "token"  # As settings.NINJA_JWT["AUTH_HEADER_TYPES"] isn't working with this custom class
     user_model = User
 
     def __init__(self, *args, pass_even=False, **kwargs):
