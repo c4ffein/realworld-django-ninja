@@ -46,7 +46,7 @@ As [Django Ninja](https://django-ninja.dev/) (and by extension this repository) 
 make sure you a postgres database configured for connection
 
 3. Run Application
-> python manage.py runserver 
+> DEBUG=True python manage.py runserver
 
 ### Using Docker and Docker Compose
 
@@ -54,7 +54,7 @@ Run:
 > docker compose up
 
 ### Testing
-- Django Ninja tests: `./manage.py test`
+- Django Ninja tests: `DEBUG=True ./manage.py test`
 - E2E Cypress tests: in `e2e-testing/cypress`, `npm test`
 
 ### Deploying
@@ -96,6 +96,7 @@ Seriously, yes, for anything that crosses your mind. This is early-stage, I'll c
 - Maybe include a frontend as a git submodule to run fully e2e tests
 - Help about CORS?
 - CI with ruff + tests
+- parameters for most routes, check API
 
 ## License
 - The [original code](https://github.com/Sean-Miningah/realWorld-DjangoRestFramework) is a [Django REST framework](https://www.django-rest-framework.org/) project made by [Sean-Miningah](https://github.com/Sean-Miningah/) and released under the [MIT License](https://github.com/Sean-Miningah/realWorld-DjangoRestFramework/blob/master/LICENSE).

@@ -30,21 +30,8 @@ api.add_router(f"/{api_prefix}", "articles.api.router")
 api.add_router(f"/{api_prefix}", "comments.api.router")
 api.add_router("/images", "image_server.api.router")
 
-# TODO : Replace this initial drf_yasg code
-# schema_view = get_schema_view(
-#     openapi.Info(
-#         title="Real World API",
-#         default_version="v1",
-#         description="Real World API Documentation",
-#     ),
-#     public=True,
-#     permission_classes=(permissions.AllowAny,),
-# )
-
 urlpatterns = [
     path("admin/", admin.site.urls),
-    # TODO : Replace this initial drf_yasg code
-    # path("swagger/", schema_view.with_ui("swagger", cache_timeout=0), name="schema-redoc"),
     path("", api.urls),
 ]
 
