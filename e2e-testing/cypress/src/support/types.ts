@@ -1,4 +1,4 @@
-// TODO: to be merged with the api project with v2
+// will be merged with the api project with v2 on the other project
 
 type Article = {
   article: {

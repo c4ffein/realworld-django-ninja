@@ -9,7 +9,49 @@ import {
 import { registerUser } from '../support/user.util';
 
 describe('@GET articles', () => {
-  // TODO
+  it('OK @200', () => {
+    // Given
+    registerUser().then((response: Cypress.Response<User>) => {
+      cy.wrap(response.body.user.token).as('token').debug();
+    });
+
+    const article = {
+      title: `${Cypress.env('prefix')}${Date.now()}`,
+      description: `${Cypress.env('prefix')}${Date.now()}`,
+      body: `${Cypress.env('prefix')}${Date.now()}`,
+      tagList: [`${Cypress.env('prefix')}${Date.now()}`],
+    };
+
+    // When
+    cy.then(function () {
+      createArticle(article, this.token).then((response: Cypress.Response<Article>) => {
+        cy.wrap(response.body.article.slug).as('slug');
+      });
+    });
+
+    cy.then(function () {
+      cy.getRequest(`/api/articles`).then((response: Cypress.Response<Article>) => {
+        // Then
+        expect(response.status).to.equal(200);
+        response.body.articles.forEach(article => {
+        expect(typeof(article.title)).to.equal('string');
+        expect(typeof(article.description)).to.equal('string');
+        expect(typeof(article.body)).to.equal('string');
+        expect(Array.isArray(article.tagList)).to.equal(true);
+	});
+      });
+    });
+  });
+
+  it('OK @200 without auth', () => {
+    // When
+    cy.then(function () {
+      cy.getRequest(`/api/articles`, undefined).then((response: Cypress.Response<any>) => {
+        // Then
+        expect(response.status).to.equal(200);
+      });
+    });
+  });
 });
 
 describe('@GET feed', () => {
