@@ -235,18 +235,29 @@ class UserViewTestCase(TestCase):
         response = self.client.put(self.url, json={"user": {**self.base_update}, "useer": []})
         self.assertEqual(response.status_code, 200)
 
-    # TODO : At least one key for user
-    # def test_user_view_put_invalid_data_no_dict(self):
-    #     """This is wrong, but this method behaves like a PATCH, as required by the RealWorld API spec"""
-    #     response = self.client.put(self.url, json={"user": ["aaa"]})
-    #     self.assertEqual(response.status_code, 422)
+    def test_user_view_put_invalid_data_not_a_dict(self):
+        """This is wrong, but this method behaves like a PATCH, as required by the RealWorld API spec"""
+        response = self.client.put(self.url, json=[])
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(
+            loads(response.content),
+            {
+                "detail": [
+                    {"loc": ["body", "data", "user"], "msg": "Field required", "type": "missing"},
+                ],
+            },
+        )
 
-    # TODO : At least one key for user
-    # def test_user_view_put_invalid_data_missing_one_user_key(self):
-    #     """This is wrong, but this method behaves like a PATCH, as required by the RealWorld API spec"""
-    #     for key in ["email", "bio", "image", "username"]:
-    #         response = self.client.put(self.url, json={"user": {}})
-    #         self.assertEqual(response.status_code, 422)
+    def test_user_view_put_invalid_data_user_is_not_a_dict(self):
+        """This is wrong, but this method behaves like a PATCH, as required by the RealWorld API spec"""
+        response = self.client.put(self.url, json={"user": ["aaa"]})
+        self.assertEqual(response.status_code, 200)
+        saved_user_value = {"email": "test@example.com", "username": "testuser", "bio": "", "image": None}
+        base_values = {"id": self.user.id, "last_login": None, "date_joined": mock.ANY, "password": mock.ANY}
+        self.assertEqual(
+            User.objects.values().last(),
+            {**base_values, **self.default_user_statuses, **saved_user_value},
+        )
 
     def test_user_view_put_invalid_data_wrong_mail_domain(self):
         """This is wrong, but this method behaves like a PATCH, as required by the RealWorld API spec"""

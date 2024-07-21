@@ -4,6 +4,7 @@ import re
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from ninja_jwt.tokens import AccessToken
+from parameterized import parameterized
 
 from helpers.headered_client import HeaderedClient
 
@@ -57,8 +58,10 @@ class CommentViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, {"comments": []})
 
-    def test_get_comments_list_on_article_with_comments(self):
-        self.maxDiff = None
+    @parameterized.expand(((False,), (True,)))
+    def test_get_comments_list_on_article_with_comments(self, make_it_follow):
+        if make_it_follow:
+            self.user_1.followers.add(self.user_0)
         url = f"/articles/{self.article_0.slug}/comments"
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -75,7 +78,7 @@ class CommentViewTestCase(TestCase):
                             "username": f"testuser{u}",
                             "bio": None,
                             "image": "https://api.realworld.io/images/smiley-cyrus.jpeg",
-                            "following": False,
+                            "following": make_it_follow and u == 1,
                         },
                     }
                     for comment, n, u in [[self.comment_1, 1, 0], [self.comment_0, 0, 1]]
@@ -84,8 +87,6 @@ class CommentViewTestCase(TestCase):
         )
         self._valid_timestamps_in_output_dict(response.data["comments"][0])
         self._valid_timestamps_in_output_dict(response.data["comments"][1])
-
-    # TODO : Check following
 
     def test_create_comment(self):
         response = self.client.post(
