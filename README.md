@@ -82,12 +82,12 @@ Seriously, yes, for anything that crosses your mind. This is early-stage, I'll c
 ## Improvements / still TODO
 *I'm not creating specific issues for those as I just hope to finish all that soon enough (I wish), but you may do it if you want:*
 - Even better tests
-- Update Django-Ninja / Django
 - Better explain what has been done
   - Explain why https://github.com/gothinkster/realworld/blob/main/api/openapi.yml error management hasn't been followed
     - including 404 for everything
     - including error messages
   - Explain why many tests have been added after and not before the migration
+- Replace Poetry
 - Real checks with frontend apps, probably picking one of those for a demo
 - Better debug env variable and settings in general
 - Also port Playwright

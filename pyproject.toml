@@ -7,8 +7,8 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-django = "^4.2.2"
-django-taggit = "^4.0.0"
+django = "^5.0.7"
+django-taggit = "^5.0.1"
 markdown = "^3.4.3"
 django-filter = "^23.2"
 coreapi = "^2.3.3"
