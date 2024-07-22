@@ -87,11 +87,11 @@ def update(request, slug: str, data: ArticlePartialUpdateSchema):
     article = get_object_or_404(Article, slug=slug)
     if request.user != article.author:
         return 403, None
-    # Doing this to trigger slug-recalculation for now
-    article.title = data.article.title if data.article.title != EMPTY else article.title
-    article.summary = data.article.summary if data.article.summary != EMPTY else article.summary
-    article.content = data.article.content if data.article.content != EMPTY else article.content
-    article.save()
+    updated_fields = []
+    for attr, value in data.article.dict(exclude_unset=True).items():
+        setattr(article, attr, value)
+        updated_fields.extend(["title", "slug"] if attr == "title" else [attr])
+    article.save(update_fields=updated_fields)  # Prevents some race condition
     return {"article": ArticleOutSchema.from_orm(article, context={"request": request})}
 
 

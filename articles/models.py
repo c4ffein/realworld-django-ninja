@@ -37,13 +37,10 @@ class Article(models.Model):
 
     tags = TaggableManager(blank=True)
     favorites = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name="favorites")
-    slug = models.SlugField(unique=True, max_length=255)
+    slug = models.SlugField(unique=True, max_length=255)  # Not a property as used for lookup
 
     objects = ArticleManager()
 
-    # @property
-    # def slug(self) -> str:
-    #     return slugify(self.title)
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
         super().save(*args, **kwargs)
