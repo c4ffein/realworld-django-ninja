@@ -36,11 +36,13 @@ As [Django Ninja](https://django-ninja.dev/) (and by extension this repository) 
   git clone https://github.com/c4ffein/realworld-django-ninja.git
 
 ```
-2. Create Virtual Environment
+2. Create `uv` Virtual Environment
 ```shell
   cd project_directory
-  python3 -m venv venv 
-  pip3 install -r requirements.txt
+  pip install uv  # Install the `extremely fast Python package installer and resolver`
+  uv venv venv  # Create a venv
+  . venv/bin/activate  # Activate it
+  uv pip install .[dev]  # Install all dependencies for dev
 ```
 
 make sure you a postgres database configured for connection
@@ -87,7 +89,6 @@ Seriously, yes, for anything that crosses your mind. This is early-stage, I'll c
     - including 404 for everything
     - including error messages
   - Explain why many tests have been added after and not before the migration
-- Replace Poetry
 - Real checks with frontend apps, probably picking one of those for a demo
 - Better debug env variable and settings in general
 - Also port Playwright

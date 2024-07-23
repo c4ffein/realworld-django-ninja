@@ -1,20 +1,42 @@
-[tool.poetry]
+[project]
 name = "realworld-django-ninja"
+authors = [
+    {name = "Sean-Miningah", email = "seanpminingah@gmail.com"},
+    {name = "c4ffein", email = "c4ffein@protonmail.com"},
+]
 version = "0.1.0"
 description = ""
-authors = ["Sean-Miningah <seanpminingah@gmail.com>", "c4ffein <c4ffein@protonmail.com>"]
 readme = "README.md"
+requires-python = ">=3.7"
+classifiers = ["License :: OSI Approved :: MIT License"]
+dependencies = [
+    "annotated-types==0.6.0",
+    "asgiref==3.7.2",
+    "coreapi==2.3.3",
+    "django==5.0.7",
+    "django-cors-headers==4.3.1",
+    "django-extensions==3.2.3",
+    "django-ninja==1.2.2",
+    "django-ninja-extra==0.21.2",
+    "django-ninja-jwt==5.3.1",
+    "django-taggit==5.0.1",
+    "email-validator==2.1.1",
+    "markdown==3.4.3",
+    "parameterized==0.9.0",
+    "psycopg2==2.9.6",
+    "pydantic==2.6.4",
+    "pydantic-core==2.16.3",
+    "sqlparse==0.4.4",
+    "typing-extensions==4.10.0",
+]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-django = "^5.0.7"
-django-taggit = "^5.0.1"
-markdown = "^3.4.3"
-django-filter = "^23.2"
-coreapi = "^2.3.3"
-psycopg2 = "^2.9.6"
-ruff = "^0.5.1"
+[project.optional-dependencies]
+dev = [
+    "ruff==0.5.1",
+]
 
+[tool.setuptools]
+py-modules = []  # fixes `Multiple top-level packages discovered in a flat-layout`
 
 [tool.ruff]
 exclude = [
@@ -46,8 +68,3 @@ exclude = [
     "venv",
 ]
 line-length = 120
-
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
