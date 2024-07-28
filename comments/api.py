@@ -1,3 +1,8 @@
+"""
+These routes don't use Schemas for output.
+This is on purpose, to show that it is possible to start that way, and to iterate faster.
+"""
+
 from typing import Any
 
 from django.shortcuts import get_object_or_404
