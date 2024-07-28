@@ -97,7 +97,7 @@ Before the heaviest modifications, some small commits have been made with the in
 If you would like to contribute to the project, please follow these guidelines:
 - Fork the repository and create a new branch for your feature or bug fix.
 - Make the necessary changes and commit them.
-  - `ruff format` and `ruff check` as I still haven't set-up a CI...
+  - `make lint` your changes, otherwise they will be rejected by the CI.
 - Push your changes to your forked repository.
 - Submit a pull request to the main repository, explaining the changes you made and any additional information that might be helpful for review.
 
