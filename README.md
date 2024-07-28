@@ -70,6 +70,29 @@ Choose a frontend from [codebase.show](https://codebase.show/projects/realworld)
 An auto-generated API documentation using [Swagger](https://swagger.io/) is available at the `/docs` route.
 
 
+## Divergence with the existing, and porting process
+### Divergence with [realWorld-DjangoRestFramework](https://github.com/Sean-Miningah/realWorld-DjangoRestFramework)
+- Contrarily to the [RealWorld API spec](https://github.com/gothinkster/realworld/blob/main/api/openapi.yml), [realWorld-DjangoRestFramework](https://github.com/Sean-Miningah/realWorld-DjangoRestFramework) returns [HTTP 404](https://developer.mozilla.org/fr/docs/Web/HTTP/Status/404) for nearly anything that goes wrong. This was replaced by [the default Django Ninja handlers and some custom behavior](https://django-ninja.dev/guides/errors/).
+
+### Divergence with the [RealWorld API spec](https://github.com/gothinkster/realworld/blob/main/api/openapi.yml)
+- While the [RealWorld API spec](https://github.com/gothinkster/realworld/blob/main/api/openapi.yml) uses the [HTTP 422](https://developer.mozilla.org/fr/docs/Web/HTTP/Status/422) for most errors, we are not just using an array but the output from [the default ValidationError handler](https://django-ninja.dev/guides/errors/#ninjaerrorsvalidationerror).
+- This project handles some HTTP error codes differently:
+  - Makes a difference between [401](https://developer.mozilla.org/fr/docs/Web/HTTP/Status/401) and [403](https://developer.mozilla.org/fr/docs/Web/HTTP/Status/403).
+  - Uses [409](https://developer.mozilla.org/fr/docs/Web/HTTP/Status/409) sometimes.
+- Some additional checks for data consistency (example: now verifies that email addresses are indeed email addresses and not just random strings, that change made some e2e tests failed).
+
+### Commits that are a good illustration of the migration from [Django REST framework](https://www.django-rest-framework.org) to [Django Ninja](https://django-ninja.dev)
+Before the heaviest modifications, some small commits have been made with the intention to well present the migration process.  
+*Please note that many tests were added after and not before the migration, as, even if in a real world scenario you would try to add as-much tests before (to ensure that you don't break anything), the goal here was mainly to provide a [Django Ninja](https://django-ninja.dev) of the [RealWorld demo app](https://github.com/gothinkster/realworld). See [`Divergence with the existing`](#divergence-with-the-existing).*
+- [`df3f024a0fcbb5694de7d29d9a3cc3d50cde111c`](https://github.com/c4ffein/realworld-django-ninja/commit/df3f024a0fcbb5694de7d29d9a3cc3d50cde111c): Good example of migrating just one route.
+  - Focused on the quick fix of the `/api/articles/tag` route in `articles/api.py`, and the modification of `articles/urls.py` that lets that route be handled by the [Django Ninja router](https://django-ninja.dev/guides/routers/).
+  - UT is adapted, the existing [Django REST framework](https://www.django-rest-framework.org) `ViewSet` deleted.
+- [`e5efe9c309b9fd46e5978ed09ce4e5fd119844e4`](https://github.com/c4ffein/realworld-django-ninja/commit/e5efe9c309b9fd46e5978ed09ce4e5fd119844e4): Migrating the `comments` app, (tests pass but the route is broken as the [router](https://django-ninja.dev/guides/routers/) is only registered in [`069cb7a7c607457b8275ff9db2bf542c1b85b9de`](https://github.com/c4ffein/realworld-django-ninja/commit/069cb7a7c607457b8275ff9db2bf542c1b85b9de)).
+- [`45e472e0bd8fc72b4458dc55901dc37c0ff205fa`](https://github.com/c4ffein/realworld-django-ninja/commit/45e472e0bd8fc72b4458dc55901dc37c0ff205fa): Most modifications of the `accounts` app.
+- [`069cb7a7c607457b8275ff9db2bf542c1b85b9de`](https://github.com/c4ffein/realworld-django-ninja/commit/069cb7a7c607457b8275ff9db2bf542c1b85b9de): Preparing the migration of `articles`.
+- [`e7285493d28abeff453c03003a6e8075cd106e21`](https://github.com/c4ffein/realworld-django-ninja/commit/e7285493d28abeff453c03003a6e8075cd106e21): Biggest chunk of modification towards the migration of the `articles` app.
+
+
 ## Contributing
 If you would like to contribute to the project, please follow these guidelines:
 - Fork the repository and create a new branch for your feature or bug fix.
@@ -81,14 +104,9 @@ If you would like to contribute to the project, please follow these guidelines:
 ### Should I create an issue?
 Seriously, yes, for anything that crosses your mind. This is early-stage, I'll consider any opinion.
 
+
 ## Improvements / still TODO
 *I'm not creating specific issues for those as I just hope to finish all that soon enough (I wish), but you may do it if you want:*
-- Better explain what has been done
-  - Explain why https://github.com/gothinkster/realworld/blob/main/api/openapi.yml error management hasn't been followed
-    - including 404 for everything
-    - including error messages
-  - Explain why many tests have been added after and not before the migration
-- Explain a bit commit history, which ones are good to see a simple migration, before some of the whole lint + full modifications
 - Real checks with frontend apps, probably picking one of those for a demo
 - Maybe include a frontend as a git submodule to run fully e2e tests
 - Better debug env variable and settings in general
@@ -98,6 +116,7 @@ Seriously, yes, for anything that crosses your mind. This is early-stage, I'll c
 - Help about CORS?
 - CI with ruff + tests
 - parameters for most routes, check API
+
 
 ## License
 - The [original code](https://github.com/Sean-Miningah/realWorld-DjangoRestFramework) is a [Django REST framework](https://www.django-rest-framework.org/) project made by [Sean-Miningah](https://github.com/Sean-Miningah/) and released under the [MIT License](https://github.com/Sean-Miningah/realWorld-DjangoRestFramework/blob/master/LICENSE).
