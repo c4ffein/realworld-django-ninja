@@ -5,7 +5,7 @@ test-django:
 	DEBUG=True ./manage.py test
 
 test-cypress:
-	cd e2e-testing/cypress/; npm test ; cd ../..
+	cd e2e-testing/cypress/; npm test
 
 lint:
 	ruff check --fix; ruff format
