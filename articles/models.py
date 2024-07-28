@@ -14,12 +14,11 @@ class ArticleQuerySet(models.QuerySet):
     def with_favorites(self, user: AnonymousUser | User) -> models.QuerySet:
         return self.annotate(
             num_favorites=models.Count("favorites"),
-            # true if user is authenticated
-            is_favorite=models.Exists(
-                get_user_model().objects.filter(pk=user.id, favorites=models.OuterRef("pk")),
-            )
-            if user.is_authenticated
-            else models.Value(False, output_field=models.BooleanField()),
+            is_favorite=(
+                models.Exists(get_user_model().objects.filter(pk=user.id, favorites=models.OuterRef("pk")))
+                if user.is_authenticated
+                else models.Value(False, output_field=models.BooleanField())
+            ),
         )
 
 
@@ -45,14 +44,6 @@ class Article(models.Model):
         self.slug = slugify(self.title)
         super().save(*args, **kwargs)
 
-    # def get_absolute_url(self) -> str:
-    #    return reverse(
-    #        "article_detail",
-    #        kwargs={
-    #            "article_id": self.id,
-    #            "slug": self.slug,
-    #        }
-    #    )
-
     def as_markdown(self) -> str:
+        """Unused here as we are consumed by a SPA"""
         return markdown.markdown(self.content, safe_mode="escape", extensions=["extra"])

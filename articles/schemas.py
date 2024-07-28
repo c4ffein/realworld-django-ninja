@@ -1,3 +1,5 @@
+from typing import Optional
+
 from ninja import Schema, ModelSchema, Field
 from pydantic import SerializeAsAny, validator
 from datetime import datetime
@@ -22,13 +24,12 @@ class ArticleOutSchema(ModelSchema):
         fields = ["slug", "title"]
 
     @staticmethod
-    def resolve_favorited(obj, context) -> bool:
-        user = context.get("request").user
-        return obj.favorites.filter(pk=user.id).exists() if user and user.is_authenticated else False
+    def resolve_favorited(obj) -> bool:
+        return obj.is_favorite
 
     @staticmethod
     def resolve_favoritesCount(obj) -> int:
-        return obj.favorites.count()
+        return obj.num_favorites
 
     @staticmethod
     def resolve_tagList(obj):
@@ -52,9 +53,9 @@ class ArticleCreateSchema(Schema):
 
 
 class ArticleInPartialUpdateSchema(Schema):
-    title: SerializeAsAny[str] = EMPTY
-    summary: SerializeAsAny[str] = Field(EMPTY, alias="description")
-    content: SerializeAsAny[str] = Field(EMPTY, alias="body")
+    title: Optional[str] = None
+    summary: Optional[str] = Field(None, alias="description")
+    content: Optional[str] = Field(None, alias="body")
 
     @validator("content", "summary", "title")
     def check_not_empty(cls, v):
