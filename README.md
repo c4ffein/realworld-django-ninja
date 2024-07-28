@@ -48,7 +48,7 @@ As [Django Ninja](https://django-ninja.dev/) (and by extension this repository) 
 make sure you a postgres database configured for connection
 
 3. Run Application
-> DEBUG=True python manage.py runserver
+> make run-debug
 
 ### Using Docker and Docker Compose
 
@@ -56,8 +56,8 @@ Run:
 > docker compose up
 
 ### Testing
-- Django Ninja tests: `DEBUG=True ./manage.py test`
-- E2E Cypress tests: in `e2e-testing/cypress`, `npm test`
+- Django Ninja tests: `make test-django`
+- E2E Cypress tests: `make test-cypress` (needs the application running)
 
 ### Deploying
 A [Django Ninja](https://django-ninja.dev/) project can be deployed just as any [https://www.djangoproject.com/](Django) project.
@@ -83,18 +83,18 @@ Seriously, yes, for anything that crosses your mind. This is early-stage, I'll c
 
 ## Improvements / still TODO
 *I'm not creating specific issues for those as I just hope to finish all that soon enough (I wish), but you may do it if you want:*
-- Even better tests
 - Better explain what has been done
   - Explain why https://github.com/gothinkster/realworld/blob/main/api/openapi.yml error management hasn't been followed
     - including 404 for everything
     - including error messages
   - Explain why many tests have been added after and not before the migration
+- Explain a bit commit history, which ones are good to see a simple migration, before some of the whole lint + full modifications
 - Real checks with frontend apps, probably picking one of those for a demo
+- Maybe include a frontend as a git submodule to run fully e2e tests
 - Better debug env variable and settings in general
 - Also port Playwright
 - Also port [Postman](https://github.com/gothinkster/realworld/tree/main/api)
-- Explain a bit commit history, which ones are good to see a simple migration, before some of the whole lint + full modifications
-- Maybe include a frontend as a git submodule to run fully e2e tests
+- Even better tests
 - Help about CORS?
 - CI with ruff + tests
 - parameters for most routes, check API
