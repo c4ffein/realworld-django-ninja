@@ -93,3 +93,5 @@ db.sqlite3
 # Custom
 notes.md
 notes.txt
+fronts/react-redux-realworld-example-app/package-lock.json
+fronts/vue3-realworld-example-app/package-lock.json
