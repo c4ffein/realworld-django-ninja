@@ -110,12 +110,16 @@ Seriously, yes, for anything that crosses your mind. This is early-stage, I'll c
 
 ## Improvements / still TODO
 *I'm not creating specific issues for those as I just hope to finish all that soon enough (I wish), but you may do it if you want:*
-- Real checks with frontend apps, probably picking one of those for a demo
-- Maybe include a frontend as a git submodule to run fully e2e tests
+- Real front
+  - Fix 401 vue
+  - git submodules, link those 2 pretty in readme
+    - https://github.com/khaledosman/react-redux-realworld-example-app
+    - https://github.com/mutoe/vue3-realworld-example-app
+  - `git pull --recurse-submodules` and/or `make submodule` => regular `git pull` doesn't get the updated submodule code when reference updated by someone else (independant from other codebase changes)
+  - table with vue/react setup run clean makefile commands
+  - real checks with those
+  - easy to setup, explain in this readme
 - Better debug env variable and settings in general
-- Also port Playwright
-- Also port [Postman](https://github.com/gothinkster/realworld/tree/main/api)
-- Even better tests
 - Help about CORS?
 - CI with ruff + django tests + cypress API
 
