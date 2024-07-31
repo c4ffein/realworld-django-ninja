@@ -101,6 +101,9 @@ If you would like to contribute to the project, please follow these guidelines:
 - Push your changes to your forked repository.
 - Submit a pull request to the main repository, explaining the changes you made and any additional information that might be helpful for review.
 
+### Opened issues
+You may check [the opened issues](https://github.com/c4ffein/realworld-django-ninja/issues) if you want to make your first contributions, priority to [this one](https://github.com/c4ffein/realworld-django-ninja/issues/1).
+
 ### Should I create an issue?
 Seriously, yes, for anything that crosses your mind. This is early-stage, I'll consider any opinion.
 
@@ -114,8 +117,7 @@ Seriously, yes, for anything that crosses your mind. This is early-stage, I'll c
 - Also port [Postman](https://github.com/gothinkster/realworld/tree/main/api)
 - Even better tests
 - Help about CORS?
-- CI with ruff + tests
-- parameters for most routes, check API
+- CI with ruff + django tests + cypress API
 
 
 ## License
