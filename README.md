@@ -57,7 +57,7 @@ Run:
 
 ### Testing
 - Django Ninja tests: `make test-django`
-- E2E Cypress tests: `make test-cypress` (needs the application running)
+- API Cypress tests: `make test-cypress-api` (needs the application running)
 
 ### Deploying
 A [Django Ninja](https://django-ninja.dev/) project can be deployed just as any [https://www.djangoproject.com/](Django) project.

@@ -4,8 +4,8 @@ run-debug:
 test-django:
 	DEBUG=True ./manage.py test
 
-test-cypress:
-	cd e2e-testing/cypress/; npm test
+test-cypress-api:
+	cd e2e-testing/cypress/; npm test -- --spec src/api
 
 lint:
 	ruff check --fix; ruff format
