@@ -34,7 +34,7 @@ submodule:
 # Frontend
 
 front-setup-react:
-	cd react-redux-realworld-example-app/; npm i
+	cd fronts/react-redux-realworld-example-app/; npm i
 
 front-run-react:
 	cd fronts/react-redux-realworld-example-app/;\
