@@ -77,7 +77,7 @@ You must `make submodule` to download those (or just `git pull --recurse-submodu
 | Run frontend         | `make front-run-react`   | `make front-run-vue`   |
 | Clean dependencies   | `make front-clean-react` | `make front-clean-vue` |
 
-By default, the frontends try to reach the backend at `http://localhost:8000`, but this may be configured with the `API_URL` variable (either as `make front-run-XXX API_URL="http://26.42.13.37:8000"` or `API_URL="http://26.42.13.37:8000"make front-run-vue`).
+By default, the frontends try to reach the backend at `http://localhost:8000`, but this may be configured with the `API_URL` variable (either as `make front-run-XXX API_URL="http://26.42.13.37:8000"` or `API_URL="http://26.42.13.37:8000" make front-run-vue`).
 
 #### Vue auth currently not working
 [The provided Vue implementation is not correct.](https://github.com/mutoe/vue3-realworld-example-app/pull/175) ([It will then have to be updated here.](https://github.com/c4ffein/realworld-django-ninja/issues/7))  
