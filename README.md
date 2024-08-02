@@ -69,11 +69,13 @@ Some are already included in [`fronts`](https://github.com/c4ffein/realworld-dja
 - [khaledosman/react-redux-realworld-example-app](https://github.com/khaledosman/react-redux-realworld-example-app)
 - [mutoe/vue3-realworld-example-app](https://github.com/mutoe/vue3-realworld-example-app)
 You must `make submodule` to download those (or just `git pull --recurse-submodules`): the regular `git pull` doesn't get the updated submodule code when the reference in this repository is updated by someone else.
+
 | Description | [react-redux-realworld-example-app](https://github.com/khaledosman/react-redux-realworld-example-app) | [vue3-realworld-example-app](https://github.com/mutoe/vue3-realworld-example-app) |
 | -------------------- | ------------------------ | ---------------------- |
 | Install dependencies | `make front-setup-react` | `make front-setup-vue` |
 | Run frontend         | `make front-run-react`   | `make front-run-vue`   |
 | Clean dependencies   | `make front-clean-react` | `make front-clean-vue` |
+
 By default, the frontends try to reach the backend at `http://localhost:8000`, but this may be configured with the `API_URL` variable (either as `make front-run-XXX API_URL="http://26.42.13.37:8000"` or `API_URL="http://26.42.13.37:8000"make front-run-vue`).
 
 #### Vue auth currently not working
