@@ -68,6 +68,7 @@ Choose a frontend from [codebase.show](https://codebase.show/projects/realworld)
 Some are already included in [`fronts`](https://github.com/c4ffein/realworld-django-ninja/tree/master/fronts) as git submodules for your convenience:
 - [khaledosman/react-redux-realworld-example-app](https://github.com/khaledosman/react-redux-realworld-example-app)
 - [mutoe/vue3-realworld-example-app](https://github.com/mutoe/vue3-realworld-example-app)
+
 You must `make submodule` to download those (or just `git pull --recurse-submodules`): the regular `git pull` doesn't get the updated submodule code when the reference in this repository is updated by someone else.
 
 | Description | [react-redux-realworld-example-app](https://github.com/khaledosman/react-redux-realworld-example-app) | [vue3-realworld-example-app](https://github.com/mutoe/vue3-realworld-example-app) |
