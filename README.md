@@ -64,7 +64,21 @@ A [Django Ninja](https://django-ninja.dev/) project can be deployed just as any 
 [The documentation is near perfect.](https://docs.djangoproject.com/en/5.0/howto/deployment/)
 
 ### Connect a frontend
-Choose a frontend from [codebase.show](https://codebase.show/projects/realworld) and configure it as required.
+Choose a frontend from [codebase.show](https://codebase.show/projects/realworld) and configure it as required.  
+Some are already included in [`fronts`](https://github.com/c4ffein/realworld-django-ninja/tree/master/fronts) as git submodules for your convenience:
+- [khaledosman/react-redux-realworld-example-app](https://github.com/khaledosman/react-redux-realworld-example-app)
+- [mutoe/vue3-realworld-example-app](https://github.com/mutoe/vue3-realworld-example-app)
+You must `make submodule` to download those (or just `git pull --recurse-submodules`): the regular `git pull` doesn't get the updated submodule code when the reference in this repository is updated by someone else.
+| Description | [react-redux-realworld-example-app](https://github.com/khaledosman/react-redux-realworld-example-app) | [vue3-realworld-example-app](https://github.com/mutoe/vue3-realworld-example-app) |
+| -------------------- | ------------------------ | ---------------------- |
+| Install dependencies | `make front-setup-react` | `make front-setup-vue` |
+| Run frontend         | `make front-run-react`   | `make front-run-vue`   |
+| Clean dependencies   | `make front-clean-react` | `make front-clean-vue` |
+By default, the frontends try to reach the backend at `http://localhost:8000`, but this may be configured with the `API_URL` variable (either as `make front-run-XXX API_URL="http://26.42.13.37:8000"` or `API_URL="http://26.42.13.37:8000"make front-run-vue`).
+
+#### Vue auth currently not working
+[The provided Vue implementation is not correct.](https://github.com/mutoe/vue3-realworld-example-app/pull/175) ([It will then have to be updated here.](https://github.com/c4ffein/realworld-django-ninja/issues/7))  
+Note that you can still quickfix [`fronts/vue3-realworld-example-app/src/services/index.ts`](https://github.com/mutoe/vue3-realworld-example-app/blob/18c68dc5979395aba7091d8ae34fd1e4a33bc901/src/services/index.ts) by replacing `Bearer` by `Token` yourself after `make submodule`.
 
 ## API Documentation
 An auto-generated API documentation using [Swagger](https://swagger.io/) is available at the `/docs` route.
@@ -110,15 +124,6 @@ Seriously, yes, for anything that crosses your mind. This is early-stage, I'll c
 
 ## Improvements / still TODO
 *I'm not creating specific issues for those as I just hope to finish all that soon enough (I wish), but you may do it if you want:*
-- Real front
-  - Fix 401 vue
-  - git submodules, link those 2 pretty in readme
-    - https://github.com/khaledosman/react-redux-realworld-example-app
-    - https://github.com/mutoe/vue3-realworld-example-app
-  - `git pull --recurse-submodules` and/or `make submodule` => regular `git pull` doesn't get the updated submodule code when reference updated by someone else (independant from other codebase changes)
-  - table with vue/react setup run clean makefile commands
-  - real checks with those
-  - easy to setup, explain in this readme
 - Better debug env variable and settings in general
 - Help about CORS?
 - CI with ruff + django tests + cypress API
