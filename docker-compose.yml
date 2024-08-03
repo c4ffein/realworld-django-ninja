@@ -14,19 +14,23 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - db 
+      - db
+    environment:
+      - DATABASE_URL=postgresql://postgres:0000@db:5432/postgres
+      - ALLOWED_HOSTS=*
 
   db:
     image: postgres:latest
     restart: always
-    ports:
-      - 5432:5432 
+    # ports:  # uncomment to expose to host on port 5433
+    # - 5433:5432
     volumes:
-      - db-data:/var/lib/postgresql/data 
+      - db-data:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=0000
       - POSTGRES_DB=postgres
+
 
 volumes:
   db-data:
