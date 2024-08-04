@@ -29,4 +29,5 @@ jobs:
         uv pip install .[dev]
     - name: Run Tests
       run: |
+        . venv/bin/activate
         make test-django
