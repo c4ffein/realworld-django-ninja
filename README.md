@@ -79,7 +79,7 @@ If you want to rebuild the Docker Image:
 - `make test-cypress-api`: API Cypress tests (needs the application running).
 
 ### Deploying
-A [Django Ninja](https://django-ninja.dev/) project can be deployed just as any [https://www.djangoproject.com/](Django) project.
+A [Django Ninja](https://django-ninja.dev/) project can be deployed just as any [Django](https://www.djangoproject.com/) project.
 [The documentation is near perfect.](https://docs.djangoproject.com/en/5.0/howto/deployment/)
 
 ### Connect a frontend
