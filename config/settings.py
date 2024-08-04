@@ -82,25 +82,28 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+# The parsed format follows postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]
 DATABASE_URL = getenv("DATABASE_URL")
 PARSED_DATABASE_URL = urlparse(DATABASE_URL) if DATABASE_URL else None
+if not PARSED_DATABASE_URL and not DEBUG:
+    raise SystemExit(
+        "You should set-up at least one of:\n"
+        "- PARSED_DATABASE_URL to use PostgreSQL - postgresql://[user[:password]@][netloc][:port][/dbname]\n"
+        "- DEBUG to use SQLite, if PARSED_DATABASE_URL is not already set-up"
+    )
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "postgres",
-        "USER": "postgres",
-        "PASSWORD": "0000",
-        "HOST": "localhost" if DEBUG else "db",
-        "PORT": "5432",
-    }
-    if not PARSED_DATABASE_URL
-    else {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": PARSED_DATABASE_URL.path[1:],
         "USER": PARSED_DATABASE_URL.username,
         "PASSWORD": PARSED_DATABASE_URL.password,
         "HOST": PARSED_DATABASE_URL.hostname,
         "PORT": PARSED_DATABASE_URL.port,
+    }
+    if PARSED_DATABASE_URL
+    else {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 
@@ -128,12 +131,15 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.User"
 
+
 # JWT token settings
+# SECURITY WARNING: Unsuitable for production
 NINJA_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=7),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
@@ -141,6 +147,7 @@ NINJA_JWT = {
     "UPDATE_LAST_LOGIN": True,
     "AUTH_HEADER_TYPES": ("Token",),  # Not working with custom AuthJWT class
 }
+
 
 # Default user image
 DEFAULT_USER_IMAGE = "https://api.realworld.io/images/smiley-cyrus.jpeg"
