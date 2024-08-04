@@ -30,7 +30,7 @@ As [Django Ninja](https://django-ninja.dev/) (and by extension this repository) 
 
 ## Usage
 
-1. Clone the Git repository:
+1. Clone the Git repository
 
 ```shell
   git clone https://github.com/c4ffein/realworld-django-ninja.git
@@ -46,15 +46,22 @@ As [Django Ninja](https://django-ninja.dev/) (and by extension this repository) 
   uv pip install .[dev]  # Install all dependencies for dev
 ```
 
-3. Apply [Django migrations](https://docs.djangoproject.com/en/5.0/topics/migrations/) - Either:
-- `DEBUG=True python manage.py migrate`: Applies migrations to the SQLite database.
-- `DATABASE_URL=postgresql://user:password@netloc:port/dbname python manage.py migrate`: Applies migrations to the specified PostgreSQL database.
+3. Apply [Django migrations](https://docs.djangoproject.com/en/5.0/topics/migrations/)
+```shell
+  # Apply migrations to the SQLite database
+  DEBUG=True python manage.py migrate
+  # OR
+  Apply migrations to the specified PostgreSQL database
+  DATABASE_URL=postgresql://user:password@netloc:port/dbname python manage.py migrate
+```
 
-4. Run Application - Either:
+4. Run Application
+```shell
 - `make run-debug`: Runs in `DEBUG` mode with default settings, connected to the SQLite database.
 - `make run DATABASE_URL=postgresql://user:password@netloc:port/dbname ALLOWED_HOSTS=*`: Runs outside of `DEBUG` mode, connected to the specified PostgreSQL database.
+```
 
-The [API Documentation](#api-documentation) should be available at [http://localhost:8000/docs](http://localhost:8000/docs)
+The [API Documentation](#api-documentation) should then be available at [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ### Using Docker and Docker Compose instead
 
