@@ -20,7 +20,7 @@ jobs:
         sudo systemctl start postgresql.service
         pg_isready
         sudo -u postgres createdb db
-        echo 0000 | sudo -u postgres createuser -s -d -r -w -P runner
+        printf "0000\n0000" | sudo -u postgres createuser -s -d -r -w -P runner
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
