@@ -51,14 +51,17 @@ As [Django Ninja](https://django-ninja.dev/) (and by extension this repository) 
   # Apply migrations to the SQLite database
   DEBUG=True python manage.py migrate
   # OR
-  Apply migrations to the specified PostgreSQL database
+  # Apply migrations to the specified PostgreSQL database
   DATABASE_URL=postgresql://user:password@netloc:port/dbname python manage.py migrate
 ```
 
 4. Run Application
 ```shell
-- `make run-debug`: Runs in `DEBUG` mode with default settings, connected to the SQLite database.
-- `make run DATABASE_URL=postgresql://user:password@netloc:port/dbname ALLOWED_HOSTS=*`: Runs outside of `DEBUG` mode, connected to the specified PostgreSQL database.
+  # Run in `DEBUG` mode with default settings, connected to the SQLite database
+  make run-debug
+  # OR
+  # Run outside of `DEBUG` mode, connected to the specified PostgreSQL database
+  make run DATABASE_URL=postgresql://user:password@netloc:port/dbname ALLOWED_HOSTS=*
 ```
 
 The [API Documentation](#api-documentation) should then be available at [http://localhost:8000/docs](http://localhost:8000/docs)
