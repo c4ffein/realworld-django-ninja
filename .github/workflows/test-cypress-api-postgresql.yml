@@ -1,4 +1,4 @@
-name: Test Django PostgreSQL
+name: Test Cypress API PostgreSQL
 
 on:
   push:
@@ -40,7 +40,8 @@ jobs:
     - name: Run Django
       run: |
         . venv/bin/activate
-        nohup make run DATABASE_URL=postgresql://runner:0000@localhost:5432/db > nohup.out 2> nohup.err < /dev/null &
+        # nohup make run DATABASE_URL=postgresql://runner:0000@localhost:5432/db > nohup.out 2> nohup.err < /dev/null &
+        make run DATABASE_URL=postgresql://runner:0000@localhost:5432/db &
         sleep 4
     - name: Setup Cypress
       run: |
