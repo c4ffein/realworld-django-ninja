@@ -19,7 +19,8 @@ jobs:
       run: |
         sudo systemctl start postgresql.service
         pg_isready
-        sudo -u postgres createuser -s -d -r -w runner
+        sudo -u postgres createdb db
+        echo 0000 | sudo -u postgres createuser -s -d -r -w -P runner
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
@@ -35,4 +36,4 @@ jobs:
     - name: Run Tests
       run: |
         . venv/bin/activate
-        make test-django DATABASE_URL=postgresql://runner@localhost:5432/db
+        make test-django DATABASE_URL=postgresql://runner:0000@localhost:5432/db
