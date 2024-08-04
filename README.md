@@ -11,7 +11,7 @@ It is using the [realWorld-DjangoRestFramework](https://github.com/Sean-Miningah
 
 So credit is due to [Sean-Miningah](https://github.com/Sean-Miningah/) for any initial code.
 
-For more information on how to this works with other frontends/backends, head over to the [RealWorld](https://github.com/gothinkster/realworld) repo.
+For more information on how to this works with other [frontends/backends](https://en.wikipedia.org/wiki/Frontend_and_backend), head over to the [RealWorld](https://github.com/gothinkster/realworld) repo.
 
 #### About [RealWorld](https://codebase.show/projects/realworld)
 The [RealWorld Demo App](https://codebase.show/projects/realworld?category=backend&language=python) includes many implementations of the same project ([a Medium clone](https://demo.realworld.io/#/)), for which all [frontends](https://codebase.show/projects/realworld?category=frontend) and [backends](https://codebase.show/projects/realworld?category=backend) are supposed to be switchable from one another [as they all follow the same API](https://github.com/gothinkster/realworld/tree/main/api).
@@ -38,26 +38,36 @@ As [Django Ninja](https://django-ninja.dev/) (and by extension this repository) 
 ```
 2. Create `uv` Virtual Environment
 ```shell
-  cd project_directory
+  cd realworld-django-ninja
   pip install uv  # Install the `extremely fast Python package installer and resolver`
   uv venv venv  # Create a venv
   . venv/bin/activate  # Activate it
   uv pip install .[dev]  # Install all dependencies for dev
 ```
 
-make sure you a postgres database configured for connection
+3. Apply [Django migrations](https://docs.djangoproject.com/en/5.0/topics/migrations/)
+Either:
+- `DEBUG=True python manage.py migrate`: Applies migrations to the SQLite database.
+- `DATABASE_URL=postgresql://user:password@netloc:port/dbname python manage.py migrate`: Applies migrations to the specified PostgreSQL database.
 
-3. Run Application
-> make run-debug
+4. Run Application
+Either:
+- `make run-debug`: Runs in `DEBUG` mode with default settings, connected to the SQLite database.
+- `make run DATABASE_URL=postgresql://user:password@netloc:port/dbname ALLOWED_HOSTS=*`: Runs outside of `DEBUG` mode, connected to the specified PostgreSQL database.
 
-### Using Docker and Docker Compose
+The [API Documentation](#api-documentation) should be available at [http://localhost:8000/docs](http://localhost:8000/docs)
+
+### Using Docker and Docker Compose instead
 
 Run:
 > docker compose up
 
+If you want to rebuild the Docker Image:
+> docker compose up --build
+
 ### Testing
-- Django Ninja tests: `make test-django`
-- API Cypress tests: `make test-cypress-api` (needs the application running)
+- `make test-django`: Django Ninja tests, uses SQLite by default, specify `DATABASE_URL` to use PostgreSQL.
+- `make test-cypress-api`: API Cypress tests (needs the application running).
 
 ### Deploying
 A [Django Ninja](https://django-ninja.dev/) project can be deployed just as any [https://www.djangoproject.com/](Django) project.
@@ -127,9 +137,8 @@ Seriously, yes, for anything that crosses your mind. This is early-stage, I'll c
 
 ## Improvements / still TODO
 *I'm not creating specific issues for those as I just hope to finish all that soon enough (I wish), but you may do it if you want:*
-- Better debug env variable and settings in general
 - Help about CORS?
-- CI with ruff + django tests + cypress API
+- CI with ruff + django tests both postgres and sqlite + cypress API
 
 
 ## License

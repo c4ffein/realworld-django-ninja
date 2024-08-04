@@ -10,6 +10,9 @@ DEFAULT_API_URL := "http://localhost:8000"
 run-debug:
 	DEBUG=True ./manage.py runserver 0.0.0.0:8000
 
+run:
+	./manage.py runserver 0.0.0.0:8000
+
 test-django:
 	DEBUG=True ./manage.py test
 
@@ -19,7 +22,7 @@ test-cypress-api:
 lint:
 	ruff check --fix; ruff format
 
-check-lint:
+lint-check:
 	ruff check --no-fix && ruff format --check
 
 
