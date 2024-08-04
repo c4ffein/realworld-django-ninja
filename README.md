@@ -37,6 +37,7 @@ As [Django Ninja](https://django-ninja.dev/) (and by extension this repository) 
 
 ```
 2. Create `uv` Virtual Environment
+
 ```shell
   cd realworld-django-ninja
   pip install uv  # Install the `extremely fast Python package installer and resolver`
@@ -46,11 +47,13 @@ As [Django Ninja](https://django-ninja.dev/) (and by extension this repository) 
 ```
 
 3. Apply [Django migrations](https://docs.djangoproject.com/en/5.0/topics/migrations/)
+
 Either:
 - `DEBUG=True python manage.py migrate`: Applies migrations to the SQLite database.
 - `DATABASE_URL=postgresql://user:password@netloc:port/dbname python manage.py migrate`: Applies migrations to the specified PostgreSQL database.
 
 4. Run Application
+
 Either:
 - `make run-debug`: Runs in `DEBUG` mode with default settings, connected to the SQLite database.
 - `make run DATABASE_URL=postgresql://user:password@netloc:port/dbname ALLOWED_HOSTS=*`: Runs outside of `DEBUG` mode, connected to the specified PostgreSQL database.
