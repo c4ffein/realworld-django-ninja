@@ -391,7 +391,4 @@ class ProfileDetailViewTestCase(TestCase):
             response = self.client.post(f"/profiles/{self.user.username}/follow/23")
             self.assertEqual(response.status_code, 404)
         except Exception as e:
-            self.assertEqual(e.args[0], 'Cannot resolve "/profiles/testuser/follow/23"')
-
-    def test_the_ci_is_broken(self):
-        raise Exception("just kiddin")
+            self.assertEqual(e.args[0], 'Cannot resolve "/profiles/testuser/follow/23"')   
