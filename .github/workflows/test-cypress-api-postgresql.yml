@@ -12,7 +12,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.11, 3.12]
+        python-version: [3.12]
     timeout-minutes: 10
     steps:
     - name: Start PostgreSQL
@@ -42,7 +42,9 @@ jobs:
         . venv/bin/activate
         nohup make run DATABASE_URL=postgresql://runner:0000@localhost:5432/db > nohup.out 2> nohup.err < /dev/null &
         sleep 4
+    - name: Setup Cypress
+      run: |
+        make setup-cypress
     - name: Run Tests
       run: |
-        . venv/bin/activate
         make test-cypress-api

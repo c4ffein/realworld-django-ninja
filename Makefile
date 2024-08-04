@@ -27,10 +27,13 @@ lint-check:
 
 
 ########################
-# Submodules
+# Setup
 
 submodule:
 	git submodule init; git submodule update
+
+setup-cypres:
+	cd e2e-testing/cypress/; npm i
 
 
 ########################
