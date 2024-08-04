@@ -46,15 +46,11 @@ As [Django Ninja](https://django-ninja.dev/) (and by extension this repository) 
   uv pip install .[dev]  # Install all dependencies for dev
 ```
 
-3. Apply [Django migrations](https://docs.djangoproject.com/en/5.0/topics/migrations/)
-
-Either:
+3. Apply [Django migrations](https://docs.djangoproject.com/en/5.0/topics/migrations/) - Either:
 - `DEBUG=True python manage.py migrate`: Applies migrations to the SQLite database.
 - `DATABASE_URL=postgresql://user:password@netloc:port/dbname python manage.py migrate`: Applies migrations to the specified PostgreSQL database.
 
-4. Run Application
-
-Either:
+4. Run Application - Either:
 - `make run-debug`: Runs in `DEBUG` mode with default settings, connected to the SQLite database.
 - `make run DATABASE_URL=postgresql://user:password@netloc:port/dbname ALLOWED_HOSTS=*`: Runs outside of `DEBUG` mode, connected to the specified PostgreSQL database.
 
