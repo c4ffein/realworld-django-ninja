@@ -34,7 +34,7 @@ jobs:
     - name: Run Django
       run: |
         . venv/bin/activate
-        make run-debug
+        make run-debug &
         sleep 4
     - name: Setup Cypress
       run: |
