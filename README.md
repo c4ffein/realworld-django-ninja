@@ -77,6 +77,7 @@ If you want to rebuild the Docker Image:
 ### Testing
 - `make test-django`: Django Ninja tests, uses SQLite by default, specify `DATABASE_URL` to use PostgreSQL.
 - `make test-cypress-api`: API Cypress tests (needs the application running).
+  - `make setup-cypress` is needed to install the dependencies.
 
 ### Deploying
 A [Django Ninja](https://django-ninja.dev/) project can be deployed just as any [Django](https://www.djangoproject.com/) project.  
@@ -142,12 +143,6 @@ You may check [the opened issues](https://github.com/c4ffein/realworld-django-ni
 
 ### Should I create an issue?
 Seriously, yes, for anything that crosses your mind. This is early-stage, I'll consider any opinion.
-
-
-## Improvements / still TODO
-*I'm not creating specific issues for those as I just hope to finish all that soon enough (I wish), but you may do it if you want:*
-- Help about CORS?
-- CI with ruff + django tests both postgres and sqlite + cypress API
 
 
 ## License

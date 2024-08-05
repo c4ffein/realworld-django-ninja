@@ -1,4 +1,4 @@
-name: Test Cypress API PostgreSQL
+name: Test Cypress API SQLite
 
 on:
   push:
@@ -15,12 +15,6 @@ jobs:
         python-version: [3.12]
     timeout-minutes: 10
     steps:
-    - name: Start PostgreSQL
-      run: |
-        sudo systemctl start postgresql.service
-        pg_isready
-        sudo -u postgres createdb db
-        printf "0000\n0000" | sudo -u postgres createuser -s -d -r -P runner
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
@@ -36,11 +30,11 @@ jobs:
     - name: Migrate
       run: |
         . venv/bin/activate
-        DATABASE_URL=postgresql://runner:0000@localhost:5432/db python manage.py migrate
+        DEBUG=True python manage.py migrate
     - name: Run Django
       run: |
         . venv/bin/activate
-        make run DATABASE_URL=postgresql://runner:0000@localhost:5432/db ALLOWED_HOSTS=* &
+        make run-debug
         sleep 4
     - name: Setup Cypress
       run: |
