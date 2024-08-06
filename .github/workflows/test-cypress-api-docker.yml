@@ -1,0 +1,25 @@
+name: Test Cypress API Docker
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+    timeout-minutes: 10
+    steps:
+    - uses: actions/checkout@v4
+    - name: Compose Up
+      run: |
+        docker compose up -d --wait
+    - name: Setup Cypress
+      run: |
+        make setup-cypress
+    - name: Run Tests
+      run: |
+        make test-cypress-api
