@@ -99,9 +99,6 @@ You must `make submodule` to download those (or just `git pull --recurse-submodu
 
 By default, the frontends try to reach the backend at `http://localhost:8000`, but this may be configured with the `API_URL` variable (either as `make front-run-XXX API_URL="http://26.42.13.37:8000"` or `API_URL="http://26.42.13.37:8000" make front-run-XXX`).
 
-#### Vue auth currently not working
-[The provided Vue implementation is not correct.](https://github.com/mutoe/vue3-realworld-example-app/pull/175) ([It will then have to be updated here.](https://github.com/c4ffein/realworld-django-ninja/issues/7))  
-Note that you can still quickfix [`fronts/vue3-realworld-example-app/src/services/index.ts`](https://github.com/mutoe/vue3-realworld-example-app/blob/18c68dc5979395aba7091d8ae34fd1e4a33bc901/src/services/index.ts) by replacing `Bearer` by `Token` yourself after `make submodule`.
 
 ## API Documentation
 An auto-generated API documentation using [Swagger](https://swagger.io/) is available at the `/docs` route.
