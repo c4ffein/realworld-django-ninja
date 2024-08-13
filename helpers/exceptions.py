@@ -1,5 +1,6 @@
-from psycopg2.errors import UniqueViolation
 from sqlite3 import IntegrityError
+
+from psycopg2.errors import UniqueViolation
 
 
 def clean_integrity_error(error):

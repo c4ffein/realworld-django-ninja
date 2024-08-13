@@ -2,7 +2,7 @@ from typing import Annotated, Optional
 
 from django.conf import settings
 from ninja import ModelSchema, Schema
-from pydantic import AfterValidator, EmailStr, field_validator, ValidationInfo
+from pydantic import AfterValidator, EmailStr, ValidationInfo, field_validator
 
 from accounts.models import User
 from helpers.empty import EMPTY

@@ -1,5 +1,5 @@
-from django.core.management.base import BaseCommand, CommandParser
 from django.contrib.auth import get_user_model
+from django.core.management.base import BaseCommand, CommandParser
 
 
 class Command(BaseCommand):

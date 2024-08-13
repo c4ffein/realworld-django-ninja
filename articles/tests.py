@@ -1,16 +1,15 @@
-from unittest import mock
 import re
 from json import loads
+from unittest import mock
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from ninja_jwt.tokens import AccessToken
 from parameterized import parameterized
 
-from articles.models import Article
 from articles.api import router
+from articles.models import Article
 from helpers.headered_client import HeaderedClient
-
 
 User = get_user_model()
 

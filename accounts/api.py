@@ -1,12 +1,13 @@
 from typing import Any
 
-from django.contrib.auth import authenticate
 from django.conf import settings
+from django.contrib.auth import authenticate
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja_jwt.tokens import AccessToken
 
+from accounts.models import User
 from accounts.schemas import (
     EMPTY,
     ProfileSchema,
@@ -18,10 +19,8 @@ from accounts.schemas import (
     UserPartialUpdateInSchema,
     UserPartialUpdateOutSchema,
 )
-from accounts.models import User
 from helpers.auth import AuthJWT
 from helpers.exceptions import clean_integrity_error
-
 
 router = Router()
 

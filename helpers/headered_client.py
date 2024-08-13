@@ -1,5 +1,5 @@
-from typing import Any
 from json import decoder, loads
+from typing import Any
 
 from ninja.testing import TestClient
 

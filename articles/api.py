@@ -3,16 +3,14 @@ from typing import Any
 from django.db import IntegrityError, transaction
 from django.shortcuts import get_object_or_404
 from ninja import Router
+from taggit.models import Tag
 
 from accounts.models import User
+from articles.models import Article
+from articles.schemas import ArticleCreateSchema, ArticleOutSchema, ArticlePartialUpdateSchema
 from helpers.auth import AuthJWT
 from helpers.empty import EMPTY
 from helpers.exceptions import clean_integrity_error
-from taggit.models import Tag
-
-from articles.models import Article
-from articles.schemas import ArticleCreateSchema, ArticleOutSchema, ArticlePartialUpdateSchema
-
 
 router = Router()
 

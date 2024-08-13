@@ -68,3 +68,6 @@ exclude = [
     "venv",
 ]
 line-length = 120
+
+[tool.ruff.lint]
+select = ["I"]

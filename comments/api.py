@@ -7,13 +7,12 @@ from typing import Any
 
 from django.shortcuts import get_object_or_404
 from ninja import Router
-from helpers.auth import AuthJWT
 
+from accounts.schemas import ProfileSchema
+from articles.models import Article
 from comments.models import Comment
 from comments.schemas import CommentContainerSchemaIn
-from articles.models import Article
-from accounts.schemas import ProfileSchema
-
+from helpers.auth import AuthJWT
 
 router = Router()
 

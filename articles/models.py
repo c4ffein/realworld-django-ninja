@@ -1,11 +1,10 @@
 import markdown
-from django.db import models
 from django.conf import settings
-from taggit.managers import TaggableManager
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
+from django.db import models
 from django.utils.text import slugify
-
+from taggit.managers import TaggableManager
 
 User = get_user_model()
 

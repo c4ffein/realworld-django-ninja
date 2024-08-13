@@ -4,7 +4,6 @@ from typing import Any
 from django.http import HttpResponse
 from ninja import Router
 
-
 router = Router()
 
 

@@ -1,7 +1,6 @@
 from django.test import TestCase
 
 from helpers.headered_client import HeaderedClient
-
 from image_server.api import router
 
 
