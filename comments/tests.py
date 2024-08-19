@@ -3,13 +3,13 @@ from unittest import mock
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from ninja.testing import TestClient
 from ninja_jwt.tokens import AccessToken
 from parameterized import parameterized
 
 from articles.models import Article
 from comments.api import router
 from comments.models import Comment
-from helpers.headered_client import HeaderedClient
 
 User = get_user_model()
 
@@ -39,7 +39,7 @@ class CommentViewTestCase(TestCase):
         ]:
             comment = Comment.objects.create(article=article, author=author, content=f"comment {i} content")
             setattr(self, f"comment_{i}", comment)
-        self.client = HeaderedClient(
+        self.client = TestClient(
             router, headers={"Authorization": f"Token {access_token}", "Content-Type": "application/json"}
         )
 

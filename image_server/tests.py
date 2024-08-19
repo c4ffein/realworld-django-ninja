@@ -1,12 +1,12 @@
 from django.test import TestCase
+from ninja.testing import TestClient
 
-from helpers.headered_client import HeaderedClient
 from image_server.api import router
 
 
 class ImagesTestCase(TestCase):
     def setUp(self):
-        self.client = HeaderedClient(router)
+        self.client = TestClient(router)
 
     def test_images_get_png_ok(self):
         url = "/whatever.png"

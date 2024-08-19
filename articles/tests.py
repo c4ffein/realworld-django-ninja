@@ -4,12 +4,12 @@ from unittest import mock
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from ninja.testing import TestClient
 from ninja_jwt.tokens import AccessToken
 from parameterized import parameterized
 
 from articles.api import router
 from articles.models import Article
-from helpers.headered_client import HeaderedClient
 
 User = get_user_model()
 
@@ -18,7 +18,7 @@ class ArticleViewSetTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", email="test@email.test", password="testpassword")
         access_token = self.access_token = str(AccessToken.for_user(self.user))
-        self.client = HeaderedClient(
+        self.client = TestClient(
             router, headers={"Authorization": f"Token {access_token}", "Content-Type": "application/json"}
         )
         self.default_image = "https://api.realworld.io/images/smiley-cyrus.jpeg"
@@ -407,7 +407,7 @@ class TagViewSet(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", email="test@email.test", password="testpassword")
         access_token = self.access_token = str(AccessToken.for_user(self.user))
-        self.client = HeaderedClient(
+        self.client = TestClient(
             router, headers={"Authorization": f"Token {access_token}", "Content-Type": "application/json"}
         )
         self.article = Article.objects.create(

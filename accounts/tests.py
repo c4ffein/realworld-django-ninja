@@ -5,11 +5,11 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.test import TestCase
+from ninja.testing import TestClient
 from ninja_jwt.tokens import AccessToken
 from parameterized import parameterized
 
 from accounts.api import router
-from helpers.headered_client import HeaderedClient
 
 User = get_user_model()
 
@@ -18,7 +18,7 @@ class AccountRegistrationTestCase(TestCase):
     def setUp(self):
         self.url = "users"
         self.base_user = {"email": "test@example.com", "password": "testpassword", "username": "testuser"}
-        self.client = HeaderedClient(router, headers={"Content-Type": "application/json"})
+        self.client = TestClient(router, headers={"Content-Type": "application/json"})
 
     def test_account_registration(self):
         response = self.client.post(self.url, json={"user": self.base_user})
@@ -114,7 +114,7 @@ class AccountLoginTestCase(TestCase):
         self.email, self.username, self.password = "test@example.com", "testuser", "testpassword"
         self.user = User.objects.create_user(email=self.email, username=self.username, password=self.password)
         self.url = "users/login"
-        self.client = HeaderedClient(router, headers={"Content-Type": "application/json"})
+        self.client = TestClient(router, headers={"Content-Type": "application/json"})
 
     def test_account_login(self):
         user_data = {"user": {"email": self.email, "password": self.password}}
@@ -161,7 +161,7 @@ class UserViewTestCase(TestCase):
         self.email, self.username, self.password = "test@example.com", "testuser", "testpassword"
         self.user = User.objects.create_user(email=self.email, username=self.username, password=self.password)
         self.access_token = str(AccessToken.for_user(self.user))
-        self.client = HeaderedClient(
+        self.client = TestClient(
             router, headers={"Authorization": f"Token {self.access_token}", "Content-Type": "application/json"}
         )
         self.url = "user"
@@ -312,7 +312,7 @@ class ProfileDetailViewTestCase(TestCase):
         self.user = User.objects.create_user(email="test@example.com", username="testuser", password="testpassword")
         self.other_user = User.objects.create_user(email="test2@gmail.com", username="test2user", password="password")
         self.access_token = str(AccessToken.for_user(self.user))
-        self.client = HeaderedClient(
+        self.client = TestClient(
             router, headers={"Authorization": f"Token {self.access_token}", "Content-Type": "application/json"}
         )
         self.url = f"/profiles/{self.user.username}"
