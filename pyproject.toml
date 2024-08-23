@@ -70,4 +70,14 @@ exclude = [
 line-length = 120
 
 [tool.ruff.lint]
-select = ["I"]
+select = [
+    "B",    # flake8-bugbear
+    "C",    # flake8-comprehensions
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "FURB", # refurb
+    "I",    # isort
+    "PTH",  # flake8-use-pathlib
+    "UP",   # pyupgrade
+    "W",    # pycodestyle warnings
+]

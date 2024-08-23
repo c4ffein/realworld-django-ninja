@@ -37,9 +37,9 @@ def unfavorite(request, slug):
 @router.get("/articles/feed", auth=AuthJWT(), response={200: Any, 404: Any})
 def feed(request):
     followed_authors = User.objects.filter(followers=request.user)
-    articles = [
-        a for a in Article.objects.with_favorites(request.user).filter(author__in=followed_authors).order_by("-created")
-    ]
+    articles = list(
+        Article.objects.with_favorites(request.user).filter(author__in=followed_authors).order_by("-created")
+    )
     return {
         "articlesCount": len(articles),
         "articles": [ArticleOutSchema.from_orm(a, context={"request": request}) for a in articles],

@@ -140,7 +140,7 @@ class ArticleViewSetTest(TestCase):
             },
         )
         self._valid_timestamps_in_output_dict(response.data["article"])
-        (self.assertEqual(set(response.data["article"]["tagList"]), set(["tag", "taag", "taaag"])),)
+        self.assertEqual(set(response.data["article"]["tagList"]), {"tag", "taag", "taaag"})
         self.assertEqual(Article.objects.count(), 3)
         self.assertEqual(
             Article.objects.values().last(),
@@ -155,7 +155,7 @@ class ArticleViewSetTest(TestCase):
                 "updated": mock.ANY,
             },
         )
-        self.assertEqual(set(t.name for t in Article.objects.last().tags.all()), {"tag", "taag", "taaag"})
+        self.assertEqual({t.name for t in Article.objects.last().tags.all()}, {"tag", "taag", "taaag"})
 
     def test_create_article_without_tag_field(self):
         new_article_data = {
@@ -200,7 +200,7 @@ class ArticleViewSetTest(TestCase):
                 "updated": mock.ANY,
             },
         )
-        self.assertEqual(set(t.name for t in Article.objects.last().tags.all()), set())
+        self.assertEqual({t.name for t in Article.objects.last().tags.all()}, set())
 
     def test_create_article_invalid_data_0_len_title(self):
         new_article_data = {
@@ -280,7 +280,7 @@ class ArticleViewSetTest(TestCase):
             },
         )
         self._valid_timestamps_in_output_dict(response.data["article"])
-        (self.assertEqual(set(response.data["article"]["tagList"]), set([])),)
+        self.assertEqual(set(response.data["article"]["tagList"]), set())
         self.assertEqual(
             Article.objects.values().filter(title="New Test Title").last(),
             {
@@ -320,7 +320,7 @@ class ArticleViewSetTest(TestCase):
             },
         )
         self._valid_timestamps_in_output_dict(response.data["article"])
-        (self.assertEqual(set(response.data["article"]["tagList"]), set([])),)
+        self.assertEqual(set(response.data["article"]["tagList"]), set())
         self.assertEqual(
             Article.objects.values().filter(slug=expected_slug).last(),
             {
