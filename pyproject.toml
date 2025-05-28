@@ -17,6 +17,7 @@ dependencies = [
     "django-cors-headers==4.3.1",
     "django-extensions==3.2.3",
     "django-ninja==1.4.1",
+    "django-ninja-extra==0.30.0",
     "django-ninja-jwt==5.3.1",
     "django-taggit==5.0.1",
     "email-validator==2.1.1",
