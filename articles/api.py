@@ -3,6 +3,7 @@ from typing import Any
 from django.db import IntegrityError, transaction
 from django.shortcuts import get_object_or_404
 from ninja import Router
+from ninja.errors import AuthorizationError
 from taggit.models import Tag
 
 from accounts.models import User
@@ -84,7 +85,7 @@ def retrieve(request, slug: str):
 def destroy(request, slug: str):
     article = get_object_or_404(Article, slug=slug)
     if request.user != article.author:
-        return 403, None
+        raise AuthorizationError
     article.delete()
     return 204, None
 
@@ -94,7 +95,7 @@ def update(request, slug: str, data: ArticlePartialUpdateSchema):
     """This is wrong, but this method behaves like a PATCH, as required by the RealWorld API spec"""
     article = get_object_or_404(Article.objects.with_favorites(request.user), slug=slug)
     if request.user != article.author:
-        return 403, None
+        raise AuthorizationError
     updated_fields = []
     for attr, value in data.article.dict(exclude_unset=True).items():
         setattr(article, attr, value)

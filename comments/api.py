@@ -7,6 +7,7 @@ from typing import Any
 
 from django.shortcuts import get_object_or_404
 from ninja import Router
+from ninja.errors import AuthorizationError
 
 from accounts.schemas import ProfileSchema
 from articles.models import Article
@@ -60,6 +61,6 @@ def delete(request, slug: str, comment_id: int):
     get_object_or_404(Article, slug=slug)
     comment = get_object_or_404(Comment, id=comment_id)
     if comment.author != request.user and comment.article.author != request.user:
-        return 403, None
+        raise AuthorizationError
     comment.delete()
     return 204, None

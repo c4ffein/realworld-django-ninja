@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from ninja import Router
+from ninja.errors import AuthorizationError
 from ninja_jwt.tokens import AccessToken
 
 from accounts.models import User
@@ -88,7 +89,7 @@ def get_profiles(request, username: str):
 def follow_profile(request, username: str):
     profile = get_object_or_404(User, username=username)
     if profile == request.user:
-        return 403, None
+        raise AuthorizationError
     if profile.followers.filter(pk=request.user.id).exists():
         return 409, None
     profile.followers.add(request.user)
@@ -101,7 +102,7 @@ def follow_profile(request, username: str):
 def unfollow_profile(request, username: str):
     profile = get_object_or_404(User, username=username)
     if profile == request.user:
-        return 403, None
+        raise AuthorizationError
     if not profile.followers.filter(pk=request.user.id).exists():
         return 409, None
     profile.followers.remove(request.user)
