@@ -1,3 +1,5 @@
+from typing import Final
+
 from pydantic import BaseModel
 
 
@@ -10,4 +12,4 @@ class _Empty(BaseModel):
     pass
 
 
-EMPTY = _Empty()
+EMPTY: Final = _Empty()
