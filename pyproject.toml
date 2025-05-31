@@ -86,3 +86,4 @@ select = [
 [tool.ty.rules]
 unresolved-attribute = "ignore"  # tradeoff since some schemas define fields from Meta
 unresolved-import = "ignore"  # not setting this for now but this line should be removed
+possibly-unbound-attribute = "ignore"  # too much false positive for now with Django QuerySet

@@ -268,14 +268,18 @@ class UserViewTestCase(TestCase):
                 "detail": [
                     {
                         "type": "value_error",
-                        "loc": ["body", "data", "user", "email"],
-                        "msg": (
-                            "value is not a valid email address: The part after the @-sign is not valid. "
-                            "It should have a period."
-                        ),
+                        "loc": ["body", "data", "user", "email", "function-after[_validate(), str]"],
+                        "msg": "value is not a valid email address: The part after the @-sign is not valid. "
+                        "It should have a period.",
                         "ctx": {"reason": "The part after the @-sign is not valid. It should have a period."},
                     },
-                ],
+                    {
+                        "type": "model_type",
+                        "loc": ["body", "data", "user", "email", "_Empty"],
+                        "msg": "Input should be a valid dictionary or instance of _Empty",
+                        "ctx": {"class_name": "_Empty"},
+                    },
+                ]
             },
         )
 
@@ -289,14 +293,18 @@ class UserViewTestCase(TestCase):
                 "detail": [
                     {
                         "type": "value_error",
-                        "loc": ["body", "data", "user", "email"],
-                        "msg": (
-                            "value is not a valid email address: The email address is not valid. "
-                            "It must have exactly one @-sign."
-                        ),
+                        "loc": ["body", "data", "user", "email", "function-after[_validate(), str]"],
+                        "msg": "value is not a valid email address: The email address is not valid. "
+                        "It must have exactly one @-sign.",
                         "ctx": {"reason": "The email address is not valid. It must have exactly one @-sign."},
                     },
-                ],
+                    {
+                        "type": "model_type",
+                        "loc": ["body", "data", "user", "email", "_Empty"],
+                        "msg": "Input should be a valid dictionary or instance of _Empty",
+                        "ctx": {"class_name": "_Empty"},
+                    },
+                ]
             },
         )
 

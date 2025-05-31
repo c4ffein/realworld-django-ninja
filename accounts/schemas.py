@@ -1,11 +1,11 @@
-from typing import Annotated, Optional
+from typing import Annotated, Any, Optional
 
 from django.conf import settings
 from ninja import ModelSchema, Schema
 from pydantic import AfterValidator, EmailStr, ValidationInfo, field_validator
 
 from accounts.models import User
-from helpers.empty import EMPTY
+from helpers.empty import EMPTY, _Empty
 
 
 def none_to_blank(v: Optional[str], info: ValidationInfo) -> str:
@@ -22,17 +22,21 @@ class ProfileSchema(ModelSchema):
         fields = ["username"]
 
     @staticmethod
-    def resolve_following(obj, context) -> str:
-        user = context.get("request").user
+    def resolve_following(obj: User, context: dict[str, Any]) -> bool:
+        user = getattr(context.get("request"), "user", None)
         return obj.followers.filter(pk=user.id).exists() if user and user.is_authenticated else False
 
     @staticmethod
-    def resolve_bio(obj, context) -> str:
-        return obj.bio or None
+    def resolve_bio(obj: User, context: dict[str, Any]) -> str | None:
+        return obj.bio or None  # ty: ignore[invalid-return-type] - Safe with this Model
 
     @staticmethod
-    def resolve_image(obj, context) -> str:
-        return obj.image or settings.DEFAULT_USER_IMAGE
+    def resolve_image(obj: User, context: dict[str, Any]) -> str:
+        return obj.image or settings.DEFAULT_USER_IMAGE  # ty: ignore[invalid-return-type] - Safe with this Model
+
+
+class ProfileOutSchema(Schema):
+    profile: ProfileSchema
 
 
 class UserInCreateSchema(ModelSchema):
@@ -84,11 +88,11 @@ class UserGetSchema(Schema):
 
 
 class UserInPartialUpdateInSchema(Schema):
-    email: Annotated[Optional[EmailStr], AfterValidator(none_to_blank)] = EMPTY
-    bio: Annotated[Optional[str], AfterValidator(none_to_blank)] = EMPTY
-    image: Annotated[Optional[str], AfterValidator(none_to_blank)] = EMPTY
-    username: Annotated[Optional[str], AfterValidator(none_to_blank)] = EMPTY
-    password: Annotated[Optional[str], AfterValidator(none_to_blank)] = EMPTY
+    email: Annotated[Optional[EmailStr] | _Empty, AfterValidator(none_to_blank)] = EMPTY
+    bio: Annotated[Optional[str] | _Empty, AfterValidator(none_to_blank)] = EMPTY
+    image: Annotated[Optional[str] | _Empty, AfterValidator(none_to_blank)] = EMPTY
+    username: Annotated[Optional[str] | _Empty, AfterValidator(none_to_blank)] = EMPTY
+    password: Annotated[Optional[str] | _Empty, AfterValidator(none_to_blank)] = EMPTY
 
 
 class UserPartialUpdateInSchema(Schema):
@@ -99,7 +103,7 @@ class UserInPartialUpdateOutSchema(UserMineSchema):
     token: str
 
     @staticmethod
-    def resolve_token(obj, context) -> str:
+    def resolve_token(obj: User, context: dict[str, Any] | None) -> str:
         return str(context.get("token", "") if context is not None else "")
 
 

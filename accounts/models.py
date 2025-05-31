@@ -31,10 +31,10 @@ class User(AbstractUser):
     first_name = None
     last_name = None
 
-    email: str = models.EmailField("Email Address", unique=True)
-    username: str = models.CharField(max_length=60, unique=True)
-    bio: str = models.TextField(blank=True)
-    image: str | None = models.URLField(null=True, blank=True)
+    email = models.EmailField("Email Address", unique=True)
+    username = models.CharField(max_length=60, unique=True)
+    bio = models.TextField(blank=True)
+    image = models.URLField(null=True, blank=True)
 
     followers = models.ManyToManyField("self", blank=True, symmetrical=False)
 
@@ -50,5 +50,5 @@ class User(AbstractUser):
     def get_short_name(self) -> str:
         return f"{self.first_name[0]}{self.last_name}" if self.first_name and self.last_name else self.username
 
-    def is_following(self, other_user):
+    def is_following(self, other_user: User) -> bool:
         return other_user.followers.filter(pk=self.id).exists() if self.is_authenticated else False
