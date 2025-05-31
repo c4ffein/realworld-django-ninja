@@ -24,10 +24,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install uv
-        uv venv venv
-        . venv/bin/activate
+        uv venv .venv
+        . .venv/bin/activate
         uv pip install .[dev]
     - name: Run Tests
       run: |
-        . venv/bin/activate
+        . .venv/bin/activate
         make test-django

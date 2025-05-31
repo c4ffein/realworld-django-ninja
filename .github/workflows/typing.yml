@@ -1,4 +1,4 @@
-name: Lint
+name: Typing
 
 on:
   push:
@@ -30,4 +30,4 @@ jobs:
     - name: Run Ruff
       run: |
         . .venv/bin/activate
-        make lint-check
+        make type-check

@@ -41,8 +41,8 @@ As [Django Ninja](https://django-ninja.dev/) (and by extension this repository) 
 ```shell
   cd realworld-django-ninja
   pip install uv  # Install the `extremely fast Python package installer and resolver`
-  uv venv venv  # Create a venv
-  . venv/bin/activate  # Activate it
+  uv venv .venv  # Create a venv
+  . .venv/bin/activate  # Activate it
   uv pip install .[dev]  # Install all dependencies for dev
 ```
 

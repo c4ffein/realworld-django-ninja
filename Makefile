@@ -25,6 +25,8 @@ lint:
 lint-check:
 	ruff check --no-fix && ruff format --check
 
+type-check:
+	ty check
 
 ########################
 # Setup

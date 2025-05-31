@@ -30,16 +30,16 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install uv
-        uv venv venv
-        . venv/bin/activate
+        uv venv .venv
+        . .venv/bin/activate
         uv pip install .[dev]
     - name: Migrate
       run: |
-        . venv/bin/activate
+        . .venv/bin/activate
         DATABASE_URL=postgresql://runner:0000@localhost:5432/db python manage.py migrate
     - name: Run Django
       run: |
-        . venv/bin/activate
+        . .venv/bin/activate
         make run DATABASE_URL=postgresql://runner:0000@localhost:5432/db ALLOWED_HOSTS=* &
         sleep 4
     - name: Setup Cypress
