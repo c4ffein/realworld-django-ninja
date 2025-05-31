@@ -28,6 +28,9 @@ lint-check:
 type-check:
 	ty check
 
+verify:
+	make lint-check && make type-check && make test-django
+
 ########################
 # Setup
 
