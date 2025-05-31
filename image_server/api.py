@@ -23,7 +23,7 @@ jpg_file = b64decode(
 
 
 @router.get("/{path}", response={200: Any, 404: Any})
-def get_file(request, path: str):
+def get_file(request, path: str) -> HttpResponse | tuple[int, None]:
     """
     Not the best way to serve static files obviously, you should store files on another server etc
     Still a good example of how to serve files generated at request time

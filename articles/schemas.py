@@ -24,15 +24,15 @@ class ArticleOutSchema(ModelSchema):
         fields = ["slug", "title"]
 
     @staticmethod
-    def resolve_favorited(obj) -> bool:
+    def resolve_favorited(obj: Article) -> bool:
         return obj.is_favorite
 
     @staticmethod
-    def resolve_favoritesCount(obj) -> int:
+    def resolve_favoritesCount(obj: Article) -> int:
         return obj.num_favorites
 
     @staticmethod
-    def resolve_tagList(obj):
+    def resolve_tagList(obj: Article) -> list[str]:
         return obj.tags if isinstance(obj.tags, list) else [t.name for t in obj.tags.all()]
 
 
@@ -43,7 +43,7 @@ class ArticleInCreateSchema(Schema):
     tags: SerializeAsAny[list[str]] = Field(EMPTY, alias="tagList")
 
     @validator("content", "summary", "title")
-    def check_not_empty(cls, v):
+    def check_not_empty(cls, v: str) -> str:
         assert v != "", "can't be blank"
         return v
 
@@ -58,7 +58,7 @@ class ArticleInPartialUpdateSchema(Schema):
     content: Optional[str] = Field(None, alias="body")
 
     @validator("content", "summary", "title")
-    def check_not_empty(cls, v):
+    def check_not_empty(cls, v: str | None) -> str | None:
         assert v != "", "can't be blank"
         return v
 

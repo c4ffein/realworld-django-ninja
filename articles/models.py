@@ -39,7 +39,7 @@ class Article(models.Model):
 
     objects = ArticleManager()
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> None:
         self.slug = slugify(self.title)
         super().save(*args, **kwargs)
 
