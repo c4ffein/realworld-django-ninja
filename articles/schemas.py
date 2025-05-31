@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 
 from ninja import Field, ModelSchema, Schema
 from pydantic import SerializeAsAny, validator
@@ -53,9 +52,9 @@ class ArticleCreateSchema(Schema):
 
 
 class ArticleInPartialUpdateSchema(Schema):
-    title: Optional[str] = None
-    summary: Optional[str] = Field(None, alias="description")
-    content: Optional[str] = Field(None, alias="body")
+    title: str | None = None
+    summary: str | None = Field(None, alias="description")
+    content: str | None = Field(None, alias="body")
 
     @validator("content", "summary", "title")
     def check_not_empty(cls, v: str | None) -> str | None:

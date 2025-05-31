@@ -1,3 +1,5 @@
+from typing import Self
+
 import markdown
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -10,7 +12,7 @@ User = get_user_model()
 
 
 class ArticleQuerySet(models.QuerySet):
-    def with_favorites(self, user: AnonymousUser | User) -> models.QuerySet:
+    def with_favorites(self, user: AnonymousUser | User) -> Self:
         return self.annotate(
             num_favorites=models.Count("favorites"),
             is_favorite=(

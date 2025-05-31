@@ -1,5 +1,3 @@
-from typing import Optional, Type
-
 from django.contrib.auth.models import AbstractUser
 from django.http import HttpRequest
 from ninja.security import HttpBearer
@@ -16,8 +14,8 @@ class AuthJWT(HttpBearer, JWTBaseAuthentication):
         self.pass_even = pass_even
         super().__init__(*args, **kwargs)
 
-    def __call__(self, request: HttpRequest) -> Optional[Type[AbstractUser]]:
+    def __call__(self, request: HttpRequest) -> AbstractUser | None:
         return super().__call__(request) or self.pass_even
 
-    def authenticate(self, request: HttpRequest, key: str) -> Type[AbstractUser]:
+    def authenticate(self, request: HttpRequest, key: str) -> AbstractUser:
         return self.jwt_authenticate(request, token=key)
