@@ -32,6 +32,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
+    "ty==0.0.1a7",
     "ruff==0.5.1",
 ]
 
@@ -81,3 +82,7 @@ select = [
     "UP",   # pyupgrade
     "W",    # pycodestyle warnings
 ]
+
+[tool.ty.rules]
+unresolved-attribute = "ignore"  # tradeoff since some schemas define fields from Meta
+unresolved-import = "ignore"  # not setting this for now but this line should be removed
