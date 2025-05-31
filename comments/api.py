@@ -1,6 +1,7 @@
 """
 These routes don't use Schemas for output.
 This is on purpose, to show that it is possible to start that way, and to iterate faster.
+This is also why this file is only lightly typed.
 """
 
 from typing import Any

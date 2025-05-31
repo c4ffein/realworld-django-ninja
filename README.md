@@ -27,6 +27,8 @@ This repository has been accepted as the reference implementation for [Django Ni
 
 As [Django Ninja](https://django-ninja.dev/) (and by extension this repository) only covers the API part, you may then [connect a frontend to it](#connect-a-frontend) after [deploying](#deploying).
 
+##### Code style
+In the long term, this repository aims to target as many good practices expected in a Django Ninja project as possible - except for the `comments` app, which is left in a quick-and-dirty style on purpose to show how it can be possible to release a PoC as fast as possible when returning incorrectly typed dictionaries, for example.
 
 ## Usage
 
