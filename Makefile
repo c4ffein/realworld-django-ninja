@@ -16,11 +16,11 @@ run:
 test-django:
 	DEBUG=True ./manage.py test
 
+test-postman:
+	cd e2e-testing/postman/; APIURL=http://localhost:8000/api ./run-api-tests.sh
+
 test-cypress-api:
 	cd e2e-testing/cypress/; npm test -- --spec src/api
-
-test-postman-api:
-	cd e2e-testing/postman/; APIURL=http://localhost:8000/api ./run-api-tests.sh
 
 lint:
 	ruff check --fix; ruff format
