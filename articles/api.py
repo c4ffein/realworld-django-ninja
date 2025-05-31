@@ -17,7 +17,7 @@ router = Router()
 
 
 @router.post("/articles/{slug}/favorite", auth=AuthJWT(), response={200: Any, 404: Any})
-def favorite(request, slug):
+def favorite(request, slug: str) -> dict[str, Any] | tuple[int, dict[str, Any]]:
     article = get_object_or_404(Article.objects.with_favorites(request.user), slug=slug)
     if article.favorites.filter(id=request.user.id).exists():
         return 409, {"errors": {"body": ["Already Favourited Article"]}}
@@ -27,7 +27,7 @@ def favorite(request, slug):
 
 
 @router.delete("/articles/{slug}/favorite", auth=AuthJWT(), response={200: Any, 404: Any})
-def unfavorite(request, slug):
+def unfavorite(request, slug: str) -> dict[str, Any]:
     article = get_object_or_404(Article.objects.with_favorites(request.user), slug=slug)
     get_object_or_404(article.favorites, id=request.user.id)
     article.favorites.remove(request.user.id)
@@ -36,7 +36,7 @@ def unfavorite(request, slug):
 
 
 @router.get("/articles/feed", auth=AuthJWT(), response={200: Any, 404: Any})
-def feed(request):
+def feed(request) -> dict[str, Any]:
     followed_authors = User.objects.filter(followers=request.user)
     articles = list(
         Article.objects.with_favorites(request.user).filter(author__in=followed_authors).order_by("-created")
@@ -48,7 +48,7 @@ def feed(request):
 
 
 @router.get("/articles", response={200: Any})
-def list_articles(request):
+def list_articles(request) -> dict[str, Any]:
     return {
         "articles": [
             ArticleOutSchema.from_orm(a, context={"request": request})
@@ -58,7 +58,7 @@ def list_articles(request):
 
 
 @router.post("/articles", auth=AuthJWT(), response={201: Any, 409: Any, 422: Any})
-def create_article(request, data: ArticleCreateSchema):
+def create_article(request, data: ArticleCreateSchema) -> tuple[int, dict[str, Any]]:
     with transaction.atomic():
         try:
             article = Article.objects.create(
@@ -76,13 +76,13 @@ def create_article(request, data: ArticleCreateSchema):
 
 
 @router.get("/articles/{slug}", auth=AuthJWT(pass_even=True), response={200: Any, 404: Any})
-def retrieve(request, slug: str):
+def retrieve(request, slug: str) -> dict[str, Any]:
     article = get_object_or_404(Article.objects.with_favorites(request.user), slug=slug)
     return {"article": ArticleOutSchema.from_orm(article, context={"request": request})}
 
 
 @router.delete("/articles/{slug}", auth=AuthJWT(), response={204: Any, 404: Any, 403: Any, 401: Any})
-def destroy(request, slug: str):
+def destroy(request, slug: str) -> tuple[int, None]:
     article = get_object_or_404(Article, slug=slug)
     if request.user != article.author:
         raise AuthorizationError
@@ -91,7 +91,7 @@ def destroy(request, slug: str):
 
 
 @router.put("/articles/{slug}", auth=AuthJWT(), response={200: Any, 404: Any, 403: Any, 401: Any})
-def update(request, slug: str, data: ArticlePartialUpdateSchema):
+def update(request, slug: str, data: ArticlePartialUpdateSchema) -> dict[str, Any]:
     """This is wrong, but this method behaves like a PATCH, as required by the RealWorld API spec"""
     article = get_object_or_404(Article.objects.with_favorites(request.user), slug=slug)
     if request.user != article.author:
@@ -105,5 +105,5 @@ def update(request, slug: str, data: ArticlePartialUpdateSchema):
 
 
 @router.get("/tags", response={200: Any})
-def list_tags(request):
+def list_tags(request) -> dict[str, Any]:
     return {"tags": [t.name for t in Tag.objects.all()]}
