@@ -152,7 +152,7 @@ class ArticleViewSetTest(TestCase):
 
         response = self.client.get("/articles/feed?limit=1", user=self.user)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data["articlesCount"], 1)
+        self.assertEqual(response.data["articlesCount"], 2)
         self.assertEqual(len(response.data["articles"]), 1)
         self.assertEqual(response.data["articles"][0]["slug"], "extra-test-title")  # the most recent article
         self._valid_timestamps_in_output_dict(loads(response.content)["articles"][0])
@@ -171,6 +171,7 @@ class ArticleViewSetTest(TestCase):
 
         response = self.client.get("/articles/feed?offset=1", user=self.user)
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["articlesCount"], 2)
         self.assertEqual(len(response.data["articles"]), 1)
         self.assertEqual(response.data["articles"][0]["slug"], "other-test-title")  # the older article
         self._valid_timestamps_in_output_dict(loads(response.content)["articles"][0])
