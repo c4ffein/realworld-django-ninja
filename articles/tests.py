@@ -69,14 +69,46 @@ class ArticleViewSetTest(TestCase):
         self.assertTrue(re.search(ts_regex, output_dict["createdAt"]))
         self.assertTrue(re.search(ts_regex, output_dict["updatedAt"]))
 
-    def test_get_articles(self):
+    def test_get_articles_no_filter(self):
         response = self.client.get("/articles", user=self.user)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data.get("articles", None), [self.other_article_out, self.article_out])
         self._valid_timestamps_in_output_dict(response.data.get("articles", None)[0])
         self._valid_timestamps_in_output_dict(response.data.get("articles", None)[1])
 
-    def test_get_article_feed(self):
+    def test_get_articles_filter_by_tag(self):
+        response = self.client.get("/articles?tag=OT", user=self.user)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.get("articles", None), [self.other_article_out])
+        self._valid_timestamps_in_output_dict(response.data.get("articles", None)[0])
+
+    def test_get_articles_filter_by_author(self):
+        response = self.client.get("/articles?author=otheruser", user=self.user)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.get("articles", None), [self.other_article_out])
+        self._valid_timestamps_in_output_dict(response.data.get("articles", None)[0])
+
+    def test_get_articles_filter_by_favorited(self):
+        self.other_article.favorites.add(self.user)
+        response = self.client.get("/articles?favorited=testuser", user=self.user)
+        self.assertEqual(response.status_code, 200)
+        expected_article = {**self.other_article_out, "favorited": True, "favoritesCount": 1}
+        self.assertEqual(response.data.get("articles", None), [expected_article])
+        self._valid_timestamps_in_output_dict(response.data.get("articles", None)[0])
+
+    def test_get_articles_with_limit(self):
+        response = self.client.get("/articles?limit=1", user=self.user)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.get("articles", None), [self.other_article_out])
+        self._valid_timestamps_in_output_dict(response.data.get("articles", None)[0])
+
+    def test_get_articles_with_offset(self):
+        response = self.client.get("/articles?offset=1", user=self.user)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.get("articles", None), [self.article_out])
+        self._valid_timestamps_in_output_dict(response.data.get("articles", None)[0])
+
+    def test_get_article_feed_no_filter(self):
         response = self.client.get("/articles/feed", user=self.user)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -104,6 +136,43 @@ class ArticleViewSetTest(TestCase):
                 ],
             },
         )
+        self._valid_timestamps_in_output_dict(loads(response.content)["articles"][0])
+
+    def test_get_article_feed_with_limit(self):
+        # Create additional articles in the feed by following more users
+        extra_user = User.objects.create_user(username="extrauser", email="extra@email.test", password="testpass")
+        Article.objects.create(
+            author=extra_user,
+            title="Extra Test Title",
+            summary="Extra Test summary",
+            content="Extra Test content",
+            slug="extra-test-slug",
+        )
+        extra_user.followers.add(self.user)
+
+        response = self.client.get("/articles/feed?limit=1", user=self.user)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["articlesCount"], 1)
+        self.assertEqual(len(response.data["articles"]), 1)
+        self.assertEqual(response.data["articles"][0]["slug"], "extra-test-title")  # the most recent article
+        self._valid_timestamps_in_output_dict(loads(response.content)["articles"][0])
+
+    def test_get_article_feed_with_offset(self):
+        # Create additional articles in the feed by following more users
+        extra_user = User.objects.create_user(username="extrauser", email="extra@email.test", password="testpass")
+        Article.objects.create(
+            author=extra_user,
+            title="Extra Test Title",
+            summary="Extra Test summary",
+            content="Extra Test content",
+            slug="extra-test-slug",
+        )
+        extra_user.followers.add(self.user)
+
+        response = self.client.get("/articles/feed?offset=1", user=self.user)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data["articles"]), 1)
+        self.assertEqual(response.data["articles"][0]["slug"], "other-test-title")  # the older article
         self._valid_timestamps_in_output_dict(loads(response.content)["articles"][0])
 
     def test_get_article_feed_ko(self):

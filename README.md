@@ -139,7 +139,7 @@ If you would like to contribute to the project, please follow these guidelines:
 - Submit a pull request to the main repository, explaining the changes you made and any additional information that might be helpful for review.
 
 ### Opened issues
-You may check [the opened issues](https://github.com/c4ffein/realworld-django-ninja/issues) if you want to make your first contributions, priority to [this one](https://github.com/c4ffein/realworld-django-ninja/issues/1).
+You may check [the opened issues](https://github.com/c4ffein/realworld-django-ninja/issues) if you want to make your first contributions.
 
 ### Should I create an issue?
 Seriously, yes, for anything that crosses your mind. This is early-stage, I'll consider any opinion.
