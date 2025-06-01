@@ -1,9 +1,8 @@
+from accounts.models import User
 from django.contrib.auth.models import AbstractUser
 from django.http import HttpRequest
 from ninja.security import HttpBearer
 from ninja_jwt.authentication import JWTBaseAuthentication
-
-from accounts.models import User
 
 
 class AuthJWT(HttpBearer, JWTBaseAuthentication):
