@@ -78,6 +78,7 @@ If you want to rebuild the Docker Image:
 
 ### Testing
 - `make test-django`: Django Ninja tests, uses SQLite by default, specify `DATABASE_URL` to use PostgreSQL.
+- `make test-postman`: API newman tests (needs the application running and `npx` installed).
 - `make test-cypress-api`: API Cypress tests (needs the application running).
   - `make setup-cypress` is needed to install the dependencies.
 
