@@ -36,24 +36,29 @@ def unfavorite(request, slug: str) -> dict[str, Any]:
 
 
 @router.get("/articles/feed", auth=AuthJWT(), response={200: Any, 404: Any})
-def feed(request) -> dict[str, Any]:
+def feed(request, limit: int = 20, offset: int = 0) -> dict[str, Any]:
     followed_authors = User.objects.filter(followers=request.user)
-    articles = list(
-        Article.objects.with_favorites(request.user).filter(author__in=followed_authors).order_by("-created")
-    )
+    queryset = Article.objects.with_favorites(request.user).filter(author__in=followed_authors).order_by("-created")
+    articles = list(queryset[offset : offset + limit])
     return {
-        "articlesCount": len(articles),
+        "articlesCount": queryset.count(),
         "articles": [ArticleOutSchema.from_orm(a, context={"request": request}) for a in articles],
     }
 
 
 @router.get("/articles", response={200: Any})
-def list_articles(request) -> dict[str, Any]:
+def list_articles(
+    request, tag: str = None, author: str = None, favorited: str = None, limit: int = 20, offset: int = 0
+) -> dict[str, Any]:
+    queryset = Article.objects.with_favorites(request.user)
+    queryset = queryset.filter(tags__name=tag) if tag else queryset
+    queryset = queryset.filter(author__username=author) if author else queryset
+    queryset = queryset.filter(favorites__username=favorited) if favorited else queryset
+    queryset = queryset.order_by("-created")
+    articles = list(queryset[offset : offset + limit])
     return {
-        "articles": [
-            ArticleOutSchema.from_orm(a, context={"request": request})
-            for a in Article.objects.with_favorites(request.user).all()
-        ]
+        "articles": [ArticleOutSchema.from_orm(a, context={"request": request}) for a in articles],
+        "articlesCount": queryset.count(),
     }
 
 

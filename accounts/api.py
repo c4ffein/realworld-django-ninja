@@ -64,7 +64,8 @@ def account_login(request, data: UserLoginSchema) -> dict[str, Any] | tuple[int,
 
 @router.get("/user", auth=AuthJWT(), response={200: Any, 404: Any})
 def get_user(request) -> UserGetSchema:
-    return UserGetSchema.model_construct(user=UserMineSchema.from_orm(request.user))
+    token = AccessToken.for_user(request.user)
+    return UserGetSchema.model_construct(user=UserMineSchema.from_orm(request.user, context={"token": token}))
 
 
 @router.put("/user", auth=AuthJWT(), response={200: Any, 401: Any})

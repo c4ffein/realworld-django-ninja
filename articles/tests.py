@@ -72,7 +72,7 @@ class ArticleViewSetTest(TestCase):
     def test_get_articles(self):
         response = self.client.get("/articles", user=self.user)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data.get("articles", None), [self.article_out, self.other_article_out])
+        self.assertEqual(response.data.get("articles", None), [self.other_article_out, self.article_out])
         self._valid_timestamps_in_output_dict(response.data.get("articles", None)[0])
         self._valid_timestamps_in_output_dict(response.data.get("articles", None)[1])
 

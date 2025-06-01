@@ -32,7 +32,7 @@ class ArticleOutSchema(ModelSchema):
 
     @staticmethod
     def resolve_tagList(obj: Article) -> list[str]:
-        return obj.tags if isinstance(obj.tags, list) else [t.name for t in obj.tags.all()]
+        return sorted(obj.tags if isinstance(obj.tags, list) else [t.name for t in obj.tags.all()])
 
 
 class ArticleInCreateSchema(Schema):

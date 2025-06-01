@@ -178,8 +178,9 @@ class UserViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             loads(response.content),
-            {"user": {"username": self.username, "email": self.email, "bio": "", "image": None}},
+            {"user": {"username": self.username, "email": self.email, "bio": "", "image": None, "token": mock.ANY}},
         )
+        self.assertEqual(len(loads(response.content)["user"]["token"].split(".")), 3)
 
     def test_user_view_get_not_logged(self):
         self.client.headers = {"Content-Type": "application/json"}

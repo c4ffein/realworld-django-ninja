@@ -75,12 +75,20 @@ class UserLoginSchema(Schema):
     user: UserInLoginSchema
 
 
-class UserMineSchema(ModelSchema):
+class UserAnySchema(ModelSchema):
     email: EmailStr
 
     class Meta:
         model = User
         fields = ["email", "bio", "image", "username"]
+
+
+class UserMineSchema(UserAnySchema):
+    token: str
+
+    @staticmethod
+    def resolve_token(obj: User, context: dict[str, Any] | None) -> str:
+        return str(context.get("token", "") if context is not None else "")
 
 
 class UserGetSchema(Schema):
@@ -99,7 +107,7 @@ class UserPartialUpdateInSchema(Schema):
     user: UserInPartialUpdateInSchema
 
 
-class UserInPartialUpdateOutSchema(UserMineSchema):
+class UserInPartialUpdateOutSchema(UserAnySchema):
     token: str
 
     @staticmethod
