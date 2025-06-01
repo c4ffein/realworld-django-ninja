@@ -6,6 +6,7 @@ This is also why this file is only lightly typed.
 
 from typing import Any
 
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.errors import AuthorizationError
@@ -64,4 +65,5 @@ def delete(request, slug: str, comment_id: int):
     if comment.author != request.user and comment.article.author != request.user:
         raise AuthorizationError
     comment.delete()
-    return 204, None
+    # As `return 204, None` would fail with newman outside debug => Content-Length=2 like if we outputed ""
+    return HttpResponse(status=204)

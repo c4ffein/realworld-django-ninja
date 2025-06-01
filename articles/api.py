@@ -1,6 +1,7 @@
 from typing import Any
 
 from django.db import IntegrityError, transaction
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.errors import AuthorizationError
@@ -91,13 +92,14 @@ def retrieve(request, slug: str) -> dict[str, Any]:
     return {"article": ArticleOutSchema.from_orm(article, context={"request": request})}
 
 
-@router.delete("/articles/{slug}", auth=AuthJWT(), response={204: Any, 404: Any, 403: Any, 401: Any})
-def destroy(request, slug: str) -> tuple[int, None]:
+@router.delete("/articles/{slug}", auth=AuthJWT(), response={200: Any, 204: Any, 404: Any, 403: Any, 401: Any})
+def destroy(request, slug: str) -> HttpResponse:
     article = get_object_or_404(Article, slug=slug)
     if request.user != article.author:
         raise AuthorizationError
     article.delete()
-    return 204, None
+    # As `return 204, None` would fail with newman outside debug => Content-Length=2 like if we outputed ""
+    return HttpResponse(status=204)
 
 
 @router.put("/articles/{slug}", auth=AuthJWT(), response={200: Any, 404: Any, 403: Any, 401: Any})
