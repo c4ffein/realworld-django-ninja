@@ -82,6 +82,9 @@ select = [
     "UP",   # pyupgrade
     "W",    # pycodestyle warnings
 ]
+ignore = [
+    "C901",  # No complexity check
+]
 
 [tool.ty.rules]
 unresolved-attribute = "ignore"  # tradeoff since some schemas define fields from Meta
