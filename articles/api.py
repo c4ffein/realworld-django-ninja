@@ -48,7 +48,12 @@ def feed(request, limit: int = 20, offset: int = 0) -> dict[str, Any]:
 
 @router.get("/articles", response={200: Any})
 def list_articles(
-    request, tag: str = None, author: str = None, favorited: str = None, limit: int = 20, offset: int = 0
+    request,
+    tag: str | None = None,
+    author: str | None = None,
+    favorited: str | None = None,
+    limit: int = 20,
+    offset: int = 0,
 ) -> dict[str, Any]:
     queryset = Article.objects.with_favorites(request.user)
     queryset = queryset.filter(tags__name=tag) if tag else queryset
