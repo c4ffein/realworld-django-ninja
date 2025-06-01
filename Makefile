@@ -14,7 +14,7 @@ run:
 	./manage.py runserver 0.0.0.0:8000
 
 test-django:
-	DEBUG=True ./manage.py test
+	DEBUG=True ./manage.py test apps
 
 test-postman:
 	cd e2e-testing/postman/; APIURL=http://localhost:8000/api ./run-api-tests.sh

@@ -1,5 +1,6 @@
 from typing import Any
 
+from accounts.models import User
 from django.db import IntegrityError, transaction
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -7,7 +8,6 @@ from ninja import Router
 from ninja.errors import AuthorizationError
 from taggit.models import Tag
 
-from accounts.models import User
 from articles.models import Article
 from articles.schemas import ArticleCreateSchema, ArticleOutSchema, ArticlePartialUpdateSchema
 from helpers.auth import AuthJWT

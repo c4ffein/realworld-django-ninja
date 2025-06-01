@@ -1,13 +1,13 @@
 import re
 from unittest import mock
 
+from articles.models import Article
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from ninja.testing import TestClient
 from ninja_jwt.tokens import AccessToken
 from parameterized import parameterized
 
-from articles.models import Article
 from comments.api import router
 from comments.models import Comment
 

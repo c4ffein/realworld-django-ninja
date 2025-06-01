@@ -6,13 +6,13 @@ This is also why this file is only lightly typed.
 
 from typing import Any
 
+from accounts.schemas import ProfileSchema
+from articles.models import Article
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.errors import AuthorizationError
 
-from accounts.schemas import ProfileSchema
-from articles.models import Article
 from comments.models import Comment
 from comments.schemas import CommentContainerSchemaIn
 from helpers.auth import AuthJWT

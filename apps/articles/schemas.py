@@ -1,9 +1,9 @@
 from datetime import datetime
 
+from accounts.schemas import ProfileSchema
 from ninja import Field, ModelSchema, Schema
 from pydantic import SerializeAsAny, validator
 
-from accounts.schemas import ProfileSchema
 from articles.models import Article
 from helpers.empty import EMPTY
 
