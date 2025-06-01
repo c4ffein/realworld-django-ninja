@@ -1,4 +1,4 @@
-name: Test Cypress API PostgreSQL
+name: Test Postman PostgreSQL
 
 on:
   push:

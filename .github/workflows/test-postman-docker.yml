@@ -1,4 +1,4 @@
-name: Test Cypress API Docker
+name: Test Postman Docker
 
 on:
   push:

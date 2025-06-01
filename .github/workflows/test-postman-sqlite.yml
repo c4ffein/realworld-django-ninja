@@ -1,4 +1,4 @@
-name: Test Cypress API SQLite
+name: Test Postman SQLite
 
 on:
   push:
