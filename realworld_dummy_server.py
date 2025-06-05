@@ -36,11 +36,13 @@ class InMemoryStorage:
 
 
 class StorageContainer:
+    """Long term, this should rate limit through additional data structs, and remove least used ip"""
+
     storage_containers = defaultdict(InMemoryStorage)
 
     @classmethod
-    def get_storage(cls):
-        return cls.storage_containers[0]
+    def get_storage(cls, identifier):
+        return cls.storage_containers[identifier]
 
 
 def generate_slug(title: str) -> str:
@@ -204,7 +206,7 @@ class RealWorldHandler(BaseHTTPRequestHandler):
 
     def _handle_request(self, method: str):
         """Route request to appropriate handler"""
-        storage = StorageContainer.get_storage()
+        storage = StorageContainer.get_storage(self.request.getpeername()[0])  # ip address of client
         parsed = urlparse(self.path)
         path = parsed.path
         query_params = parse_qs(parsed.query)
