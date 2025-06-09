@@ -64,9 +64,3 @@ front-run-vue:
 
 front-clean-vue:
 	cd fronts/vue3-realworld-example-app/; rm -r node_modules package-lock.json
-
-########################
-# Dummy
-
-dummy-test:
-	cd e2e-testing/postman/; APIURL=http://localhost:8000 ./run-api-tests.sh
