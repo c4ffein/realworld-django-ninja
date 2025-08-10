@@ -115,7 +115,7 @@ def create_jwt_token(user, request=None):
         user_id=user.id,
         type="access",
         exp=current_timestamp + jwt_settings.ACCESS_TOKEN_EXPIRE_SECONDS,
-        session_id=session.id,
+        session_id=str(session.id),
     )
 
     return generate_jwt(access_payload)
