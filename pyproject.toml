@@ -7,7 +7,7 @@ authors = [
 version = "0.1.0"
 description = ""
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 classifiers = ["License :: OSI Approved :: MIT License"]
 dependencies = [
     "annotated-types==0.6.0",

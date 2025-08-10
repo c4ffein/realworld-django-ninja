@@ -36,25 +36,22 @@ In the long term, this repository aims to target as many good practices expected
 
 ```shell
   git clone https://github.com/c4ffein/realworld-django-ninja.git
-
+  cd realworld-django-ninja
 ```
-2. Create `uv` Virtual Environment
+
+2. Install postgres dependencies, e.g. on Debian
 
 ```shell
-  cd realworld-django-ninja
-  pip install uv  # Install the `extremely fast Python package installer and resolver`
-  uv venv .venv  # Create a venv
-  . .venv/bin/activate  # Activate it
-  uv pip install .[dev]  # Install all dependencies for dev
+  sudo apt install -y postgresql-server-dev-all
 ```
 
 3. Apply [Django migrations](https://docs.djangoproject.com/en/5.0/topics/migrations/)
 ```shell
   # Apply migrations to the SQLite database
-  DEBUG=True python manage.py migrate
+  DEBUG=True make migrate
   # OR
   # Apply migrations to the specified PostgreSQL database
-  DATABASE_URL=postgresql://user:password@netloc:port/dbname python manage.py migrate
+  DATABASE_URL=postgresql://user:password@netloc:port/dbname make migrate
 ```
 
 4. Run Application

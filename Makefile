@@ -6,14 +6,41 @@ DEFAULT_API_URL := "http://localhost:8000"
 ########################
 # Django Project
 
+help:
+	@echo "Available commands:"
+	@echo "  lint-check"
+	@echo "  run-debug"
+	@echo "  run"
+	@echo "  test-django"
+	@echo "  test-postman"
+	@echo "  test-cypress-api"
+	@echo "  lint"
+	@echo "  lint-check"
+	@echo "  type-check"
+	@echo "  verify"
+	@echo "  submodule"
+	@echo "  setup-cypress"
+	@echo "  front-setup-react"
+	@echo "  front-run-react"
+	@echo "  front-clean-react"
+	@echo "  front-setup-vue"
+	@echo "  front-run-vue"
+	@echo "  front-clean-vue"
+
+########################
+# Django Project
+
 run-debug:
-	DEBUG=True ./manage.py runserver 0.0.0.0:8000
+	DEBUG=True python3 -m uv run python manage.py runserver 0.0.0.0:8000
+
+migrate:
+	python3 -m uv run python manage.py migrate
 
 run:
-	./manage.py runserver 0.0.0.0:8000
+	python3 -m uv run python manage.py runserver 0.0.0.0:8000
 
 test-django:
-	DEBUG=True ./manage.py test apps
+	DEBUG=True python3 -m uv run python manage.py test apps
 
 test-postman:
 	cd e2e-testing/postman/; APIURL=http://localhost:8000/api ./run-api-tests.sh
@@ -22,13 +49,13 @@ test-cypress-api:
 	cd e2e-testing/cypress/; npm test -- --spec src/api
 
 lint:
-	ruff check --fix; ruff format
+	python3 -m uv run ruff check --fix; ruff format
 
 lint-check:
-	ruff check --no-fix && ruff format --check
+	python3 -m uv run ruff check --no-fix && ruff format --check
 
 type-check:
-	ty check
+	python3 -m uv run ty check
 
 verify:
 	make lint-check && make type-check && make test-django

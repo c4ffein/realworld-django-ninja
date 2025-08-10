@@ -1,4 +1,4 @@
-from typing import Annotated, Any, Optional
+from typing import Annotated, Any
 
 from django.conf import settings
 from ninja import ModelSchema, Schema
@@ -8,13 +8,13 @@ from accounts.models import User
 from helpers.empty import EMPTY, _Empty
 
 
-def none_to_blank(v: Optional[str], info: ValidationInfo) -> str:
+def none_to_blank(v: str | None, info: ValidationInfo) -> str:
     return "" if v is None else v
 
 
 class ProfileSchema(ModelSchema):
     following: bool
-    bio: Optional[str]
+    bio: str | None
     image: str
 
     class Meta:
@@ -96,11 +96,11 @@ class UserGetSchema(Schema):
 
 
 class UserInPartialUpdateInSchema(Schema):
-    email: Annotated[Optional[EmailStr] | _Empty, AfterValidator(none_to_blank)] = EMPTY
-    bio: Annotated[Optional[str] | _Empty, AfterValidator(none_to_blank)] = EMPTY
-    image: Annotated[Optional[str] | _Empty, AfterValidator(none_to_blank)] = EMPTY
-    username: Annotated[Optional[str] | _Empty, AfterValidator(none_to_blank)] = EMPTY
-    password: Annotated[Optional[str] | _Empty, AfterValidator(none_to_blank)] = EMPTY
+    email: Annotated[EmailStr | None | _Empty, AfterValidator(none_to_blank)] = EMPTY
+    bio: Annotated[str | None | _Empty, AfterValidator(none_to_blank)] = EMPTY
+    image: Annotated[str | None | _Empty, AfterValidator(none_to_blank)] = EMPTY
+    username: Annotated[str | None | _Empty, AfterValidator(none_to_blank)] = EMPTY
+    password: Annotated[str | None | _Empty, AfterValidator(none_to_blank)] = EMPTY
 
 
 class UserPartialUpdateInSchema(Schema):
