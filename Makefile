@@ -49,10 +49,10 @@ test-cypress-api:
 	cd e2e-testing/cypress/; npm test -- --spec src/api
 
 lint:
-	python3 -m uv run ruff check --fix; ruff format
+	python3 -m uv run ruff check --fix; python3 -m uv run ruff format
 
 lint-check:
-	python3 -m uv run ruff check --no-fix && ruff format --check
+	python3 -m uv run ruff check --no-fix && python3 -m uv run ruff format --check
 
 type-check:
 	python3 -m uv run ty check
