@@ -25,7 +25,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install uv
         uv venv .venv
-        . .venv/bin/activate
         uv pip install .[dev]
     - name: Migrate
       run: |
@@ -33,7 +32,6 @@ jobs:
         DEBUG=True python manage.py migrate
     - name: Run Django
       run: |
-        . .venv/bin/activate
         make run-debug &
         sleep 4
     - name: Setup Cypress

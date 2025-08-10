@@ -33,7 +33,6 @@ jobs:
         DEBUG=True python manage.py migrate
     - name: Run Django
       run: |
-        . .venv/bin/activate
         make run-debug &
         sleep 4
     - name: Run Tests
