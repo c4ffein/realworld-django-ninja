@@ -39,7 +39,6 @@ jobs:
         DATABASE_URL=postgresql://runner:0000@localhost:5432/db python manage.py migrate
     - name: Run Django
       run: |
-        . .venv/bin/activate
         make run DATABASE_URL=postgresql://runner:0000@localhost:5432/db ALLOWED_HOSTS=* &
         sleep 4
     - name: Run Tests
