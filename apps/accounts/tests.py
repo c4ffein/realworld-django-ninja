@@ -6,10 +6,10 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.test import TestCase
 from ninja.testing import TestClient
-from ninja_jwt.tokens import AccessToken
 from parameterized import parameterized
 
 from accounts.api import router
+from helpers.jwt_utils import create_jwt_token
 
 User = get_user_model()
 
@@ -160,7 +160,7 @@ class UserViewTestCase(TestCase):
     def setUp(self):
         self.email, self.username, self.password = "test@example.com", "testuser", "testpassword"
         self.user = User.objects.create_user(email=self.email, username=self.username, password=self.password)
-        self.access_token = str(AccessToken.for_user(self.user))
+        self.access_token = str(create_jwt_token(self.user))
         self.client = TestClient(
             router, headers={"Authorization": f"Token {self.access_token}", "Content-Type": "application/json"}
         )
@@ -320,7 +320,7 @@ class ProfileDetailViewTestCase(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(email="test@example.com", username="testuser", password="testpassword")
         self.other_user = User.objects.create_user(email="test2@gmail.com", username="test2user", password="password")
-        self.access_token = str(AccessToken.for_user(self.user))
+        self.access_token = str(create_jwt_token(self.user))
         self.client = TestClient(
             router, headers={"Authorization": f"Token {self.access_token}", "Content-Type": "application/json"}
         )

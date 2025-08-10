@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "taggit",
     "corsheaders",
     "django_extensions",
+    "jwt_ninja",
     # Local Apps
     "apps.accounts",
     "apps.articles",
@@ -139,14 +140,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.User"
 
 
-# JWT token settings
-# SECURITY WARNING: Unsuitable for production
-NINJA_JWT = {
+# JWT token settings using jwt-ninja
+JWT_NINJA = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=7),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
-    "ROTATE_REFRESH_TOKENS": True,
-    "UPDATE_LAST_LOGIN": True,
-    "AUTH_HEADER_TYPES": ("Token",),  # Not working with custom AuthJWT class
 }
 
 

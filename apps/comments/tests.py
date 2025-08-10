@@ -5,11 +5,11 @@ from articles.models import Article
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from ninja.testing import TestClient
-from ninja_jwt.tokens import AccessToken
 from parameterized import parameterized
 
 from comments.api import router
 from comments.models import Comment
+from helpers.jwt_utils import create_jwt_token
 
 User = get_user_model()
 
@@ -30,7 +30,7 @@ class CommentViewTestCase(TestCase):
                     slug=f"test-slug-{i}",
                 ),
             )
-        access_token = self.access_token = str(AccessToken.for_user(self.user_0))
+        access_token = self.access_token = str(create_jwt_token(self.user_0))
         for i, article, author in [
             [0, self.article_0, self.user_1],
             [1, self.article_0, self.user_0],

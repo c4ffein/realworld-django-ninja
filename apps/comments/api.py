@@ -15,12 +15,12 @@ from ninja.errors import AuthorizationError
 
 from comments.models import Comment
 from comments.schemas import CommentContainerSchemaIn
-from helpers.auth import AuthJWT
+from helpers.jwt_utils import AuthedRequest, TokenAuth
 
 router = Router()
 
 
-@router.get("/articles/{slug}/comments", auth=AuthJWT(pass_even=True), response={200: Any, 404: Any})
+@router.get("/articles/{slug}/comments", auth=TokenAuth(pass_even=True), response={200: Any, 404: Any})
 def list(request, slug: str):
     try:
         return {
@@ -39,8 +39,8 @@ def list(request, slug: str):
         return 404, {"errors": {"body": ["Bad Request"]}}
 
 
-@router.post("/articles/{slug}/comments", auth=AuthJWT(), response={200: Any, 404: Any})
-def create(request, data: CommentContainerSchemaIn, slug: str):
+@router.post("/articles/{slug}/comments", auth=TokenAuth(), response={200: Any, 404: Any})
+def create(request: AuthedRequest, data: CommentContainerSchemaIn, slug: str):
     article = get_object_or_404(Article, slug=slug)
     comment = Comment.objects.create(
         article=article,
@@ -58,8 +58,8 @@ def create(request, data: CommentContainerSchemaIn, slug: str):
     }
 
 
-@router.delete("/articles/{slug}/comments/{comment_id}", auth=AuthJWT(), response={204: Any, 404: Any, 403: Any})
-def delete(request, slug: str, comment_id: int):
+@router.delete("/articles/{slug}/comments/{comment_id}", auth=TokenAuth(), response={204: Any, 404: Any, 403: Any})
+def delete(request: AuthedRequest, slug: str, comment_id: int):
     get_object_or_404(Article, slug=slug)
     comment = get_object_or_404(Comment, id=comment_id)
     if comment.author != request.user and comment.article.author != request.user:

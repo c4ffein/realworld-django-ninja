@@ -28,6 +28,7 @@ api.add_router(f"/{api_prefix}", "accounts.api.router")
 api.add_router(f"/{api_prefix}", "articles.api.router")
 api.add_router(f"/{api_prefix}", "comments.api.router")
 api.add_router("/images", "image_server.api.router")
+api.add_router("/auth", "jwt_ninja.api.router")
 
 urlpatterns = [
     path("admin/", admin.site.urls),

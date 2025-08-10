@@ -8,7 +8,6 @@ DEFAULT_API_URL := "http://localhost:8000"
 
 help:
 	@echo "Available commands:"
-	@echo "  lint-check"
 	@echo "  run-debug"
 	@echo "  run"
 	@echo "  test-django"

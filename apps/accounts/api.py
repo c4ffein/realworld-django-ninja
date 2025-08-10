@@ -6,7 +6,6 @@ from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.errors import AuthorizationError
-from ninja_jwt.tokens import AccessToken
 
 from accounts.models import User
 from accounts.schemas import (
@@ -21,8 +20,8 @@ from accounts.schemas import (
     UserPartialUpdateInSchema,
     UserPartialUpdateOutSchema,
 )
-from helpers.auth import AuthJWT
 from helpers.exceptions import clean_integrity_error
+from helpers.jwt_utils import AuthedRequest, TokenAuth, create_jwt_token
 
 router = Router()
 
@@ -33,7 +32,7 @@ def account_registration(request, data: UserCreateSchema) -> tuple[int, dict[str
         user = User.objects.create_user(data.user.email, username=data.user.username, password=data.user.password)
     except IntegrityError as err:
         return 409, {"already_existing": clean_integrity_error(err)}
-    jwt_token = AccessToken.for_user(user)
+    jwt_token = create_jwt_token(user)
     return 201, {
         "user": {
             "username": user.username,
@@ -50,7 +49,7 @@ def account_login(request, data: UserLoginSchema) -> dict[str, Any] | tuple[int,
     user = authenticate(email=data.user.email, password=data.user.password)
     if user is None:
         return 401, {"detail": [{"msg": "incorrect credentials"}]}
-    jwt_token = AccessToken.for_user(user)
+    jwt_token = create_jwt_token(user)
     return {
         "user": {
             "username": user.username,
@@ -62,14 +61,14 @@ def account_login(request, data: UserLoginSchema) -> dict[str, Any] | tuple[int,
     }
 
 
-@router.get("/user", auth=AuthJWT(), response={200: Any, 404: Any})
-def get_user(request) -> UserGetSchema:
-    token = AccessToken.for_user(request.user)
+@router.get("/user", auth=TokenAuth(), response={200: Any, 404: Any})
+def get_user(request: AuthedRequest) -> UserGetSchema:
+    token = create_jwt_token(request.user)
     return UserGetSchema.model_construct(user=UserMineSchema.from_orm(request.user, context={"token": token}))
 
 
-@router.put("/user", auth=AuthJWT(), response={200: Any, 401: Any})
-def put_user(request, data: UserPartialUpdateInSchema) -> UserPartialUpdateOutSchema:
+@router.put("/user", auth=TokenAuth(), response={200: Any, 401: Any})
+def put_user(request: AuthedRequest, data: UserPartialUpdateInSchema) -> UserPartialUpdateOutSchema:
     """This is wrong, but this method behaves like a PATCH, as required by the RealWorld API spec"""
     for word in ("email", "bio", "image", "username"):
         value = getattr(data.user, word)
@@ -78,21 +77,23 @@ def put_user(request, data: UserPartialUpdateInSchema) -> UserPartialUpdateOutSc
     if data.user.password != EMPTY:
         request.user.set_password(data.user.password)
     request.user.save()
-    token = AccessToken.for_user(request.user)
+    token = create_jwt_token(request.user)
     return UserPartialUpdateOutSchema.model_construct(
         user=UserInPartialUpdateOutSchema.from_orm(request.user, context={"token": token}),
     )
 
 
-@router.get("/profiles/{username}", auth=AuthJWT(pass_even=True), response={200: Any, 401: Any, 404: Any})
+@router.get("/profiles/{username}", auth=TokenAuth(pass_even=True), response={200: Any, 401: Any, 404: Any})
 def get_profile(request, username: str) -> ProfileOutSchema:
     return ProfileOutSchema.model_construct(
         profile=ProfileSchema.from_orm(get_object_or_404(User, username=username), context={"request": request})
     )
 
 
-@router.post("/profiles/{username}/follow", auth=AuthJWT(), response={200: Any, 400: Any, 403: Any, 404: Any, 409: Any})
-def follow_profile(request, username: str) -> tuple[int, None] | ProfileOutSchema:
+@router.post(
+    "/profiles/{username}/follow", auth=TokenAuth(), response={200: Any, 400: Any, 403: Any, 404: Any, 409: Any}
+)
+def follow_profile(request: AuthedRequest, username: str) -> tuple[int, None] | ProfileOutSchema:
     profile = get_object_or_404(User, username=username)
     if profile == request.user:
         raise AuthorizationError
@@ -103,9 +104,9 @@ def follow_profile(request, username: str) -> tuple[int, None] | ProfileOutSchem
 
 
 @router.delete(
-    "/profiles/{username}/follow", auth=AuthJWT(), response={200: Any, 400: Any, 403: Any, 404: Any, 409: Any}
+    "/profiles/{username}/follow", auth=TokenAuth(), response={200: Any, 400: Any, 403: Any, 404: Any, 409: Any}
 )
-def unfollow_profile(request, username: str) -> tuple[int, None] | ProfileOutSchema:
+def unfollow_profile(request: AuthedRequest, username: str) -> tuple[int, None] | ProfileOutSchema:
     profile = get_object_or_404(User, username=username)
     if profile == request.user:
         raise AuthorizationError
