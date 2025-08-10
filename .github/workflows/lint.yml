@@ -25,7 +25,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install uv
         uv venv .venv
-        . .venv/bin/activate
         uv pip install .[dev]
     - name: Run Ruff
       run: |
