@@ -33,7 +33,7 @@ class Article(models.Model):
     content = models.TextField(blank=True)
 
     created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
     tags = TaggableManager(blank=True)
     favorites = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name="favorites")
