@@ -1,6 +1,3 @@
-version: "3.9"
-
-
 services:
   realword-app:
     build: .
@@ -20,12 +17,12 @@ services:
       - ALLOWED_HOSTS=*
 
   db:
-    image: postgres:latest
+    image: postgres:18
     restart: always
     # ports:  # uncomment to expose to host on port 5433
     # - 5433:5432
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=0000
