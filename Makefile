@@ -8,9 +8,11 @@ DEFAULT_API_URL := "http://localhost:8000"
 
 help:
 	@echo "Available commands:"
+	@echo "  sync"
 	@echo "  run-debug"
 	@echo "  run"
 	@echo "  test-django"
+	@echo "  test-django-fast"
 	@echo "  test-postman"
 	@echo "  test-cypress-api"
 	@echo "  lint"
@@ -29,17 +31,23 @@ help:
 ########################
 # Django Project
 
+sync:
+	uv sync --extra dev
+
 run-debug:
-	DEBUG=True python3 -m uv run python manage.py runserver 0.0.0.0:8000
+	DEBUG=True uv run python manage.py runserver 0.0.0.0:8000
 
 migrate:
-	python3 -m uv run python manage.py migrate
+	uv run python manage.py migrate
 
 run:
-	python3 -m uv run python manage.py runserver 0.0.0.0:8000
+	uv run python manage.py runserver 0.0.0.0:8000
 
 test-django:
-	DEBUG=True python3 -m uv run python manage.py test apps
+	DEBUG=True uv run python manage.py test apps
+
+test-django-fast:
+	DEBUG=True DATABASE_URL=":memory:" USE_FAST_HASHER=True uv run python manage.py test apps
 
 test-postman:
 	cd e2e-testing/postman/; APIURL=http://localhost:8000/api ./run-api-tests.sh
@@ -48,16 +56,16 @@ test-cypress-api:
 	cd e2e-testing/cypress/; npm test -- --spec src/api
 
 lint:
-	python3 -m uv run ruff check --fix; python3 -m uv run ruff format
+	uv run ruff check --fix; uv run ruff format
 
 lint-check:
-	python3 -m uv run ruff check --no-fix && python3 -m uv run ruff format --check
+	uv run ruff check --no-fix && uv run ruff format --check
 
 type-check:
-	python3 -m uv run ty check
+	uv run ty check
 
 verify:
-	make lint-check && make type-check && make test-django
+	make lint-check && make type-check && make test-django-fast
 
 ########################
 # Setup

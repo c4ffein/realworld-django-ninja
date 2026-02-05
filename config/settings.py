@@ -86,28 +86,31 @@ WSGI_APPLICATION = "config.wsgi.application"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 # The parsed format follows postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]
 DATABASE_URL = getenv("DATABASE_URL")
-PARSED_DATABASE_URL = urlparse(DATABASE_URL) if DATABASE_URL else None
-if not PARSED_DATABASE_URL and not DEBUG:
+if DATABASE_URL == ":memory:":
+    if not DEBUG:
+        raise RuntimeError("DATABASE_URL=':memory:' should only be used with DEBUG=True")
+    DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}}
+elif DATABASE_URL:
+    PARSED_DATABASE_URL = urlparse(DATABASE_URL)
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": PARSED_DATABASE_URL.path[1:],
+            "USER": PARSED_DATABASE_URL.username,
+            "PASSWORD": PARSED_DATABASE_URL.password,
+            "HOST": PARSED_DATABASE_URL.hostname,
+            "PORT": PARSED_DATABASE_URL.port,
+        }
+    }
+elif DEBUG:
+    DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3"}}
+else:
     raise SystemExit(
         "You should set-up at least one of:\n"
-        "- PARSED_DATABASE_URL to use PostgreSQL - postgresql://[user[:password]@][netloc][:port][/dbname]\n"
-        "- DEBUG to use SQLite, if PARSED_DATABASE_URL is not already set-up"
+        "- DATABASE_URL to use PostgreSQL - postgresql://[user[:password]@][netloc][:port][/dbname]\n"
+        "- DATABASE_URL=':memory:' for in-memory SQLite (DEBUG only)\n"
+        "- DEBUG to use file-based SQLite"
     )
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": PARSED_DATABASE_URL.path[1:],
-        "USER": PARSED_DATABASE_URL.username,
-        "PASSWORD": PARSED_DATABASE_URL.password,
-        "HOST": PARSED_DATABASE_URL.hostname,
-        "PORT": PARSED_DATABASE_URL.port,
-    }
-    if PARSED_DATABASE_URL
-    else {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
 
 
 # Password validation
@@ -118,6 +121,12 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
+
+USE_FAST_HASHER = str(getenv("USE_FAST_HASHER", False)).lower() == "true"
+if USE_FAST_HASHER and not DEBUG:
+    raise RuntimeError("USE_FAST_HASHER should only be used with DEBUG=True")
+if USE_FAST_HASHER:
+    PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
 
 
 # Internationalization
