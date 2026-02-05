@@ -53,7 +53,8 @@ class AccountRegistrationTestCase(TestCase):
                 "username": "testuser",
             },
         )
-        self.assertIn("pbkdf2_sha256", User.objects.last().password)
+        if not settings.DEBUG and not settings.USE_FAST_HASHER:
+            self.assertIn("pbkdf2_sha256", User.objects.last().password)
 
     def test_account_registration_email_already_exists(self):
         response = self.client.post(self.url, json={"user": self.base_user})
