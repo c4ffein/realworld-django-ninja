@@ -91,7 +91,7 @@ class CommentViewTestCase(TestCase):
             f"/articles/{self.article_1.slug}/comments",
             json={"comment": {"body": "This is a test comment"}},
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 201)
         self.assertEqual(
             response.data,
             {

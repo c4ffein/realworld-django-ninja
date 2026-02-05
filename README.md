@@ -28,7 +28,10 @@ This repository has been accepted as the reference implementation for [Django Ni
 As [Django Ninja](https://django-ninja.dev/) (and by extension this repository) only covers the API part, you may then [connect a frontend to it](#connect-a-frontend) after [deploying](#deploying).
 
 #### Code style
-In the long term, this repository aims to target as many good practices expected in a Django Ninja project as possible - except for the `comments` app, which is left in a quick-and-dirty style on purpose to show how it can be possible to release a PoC as fast as possible when returning incorrectly typed dictionaries, for example.
+In the long term, this repository aims to target as many good practices expected in a Django Ninja project as possible.
+
+#### Quick-and-dirty to production-ready
+One of Django Ninja's strengths is enabling rapid prototyping with untyped dictionaries, then iterating toward proper schemas. Explore the codebase at [`f662a5d`](https://github.com/c4ffein/realworld-django-ninja/tree/f662a5d) for an example of a quick-and-dirty `comments` app implementation using raw dicts, broad exception handling, and minimal typing - the kind of code you might write for a fast PoC. The current version shows the refactored, production-ready approach with proper `ModelSchema` definitions and typed responses.
 
 ## Usage
 
