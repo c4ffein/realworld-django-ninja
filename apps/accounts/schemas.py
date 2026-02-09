@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 from typing import Annotated, Any
 
-from django.conf import settings
 from ninja import ModelSchema, Schema
 from pydantic import AfterValidator, EmailStr, ValidationInfo, field_validator
 
@@ -13,26 +14,34 @@ def none_to_blank(v: str | None, info: ValidationInfo) -> str:
 
 
 class ProfileSchema(ModelSchema):
+    model_config = {"populate_by_name": True, "from_attributes": True}
+
     following: bool
     bio: str | None
-    image: str
+    image: str | None
 
     class Meta:
         model = User
         fields = ["username"]
 
     @staticmethod
-    def resolve_following(obj: User, context: dict[str, Any]) -> bool:
-        user = getattr(context.get("request"), "user", None)
+    def resolve_following(obj: User | ProfileSchema, context: dict[str, Any] | None) -> bool:
+        if hasattr(obj, "following"):  # following was pre-computed via annotation, use it
+            return bool(obj.following)  # bool() needed - Django's Exists(), dynamically attached by annotation
+        if isinstance(obj, ProfileSchema):  # re-validating an already-constructed schema
+            return obj.following  # return existing bool
+        user = getattr(context.get("request") if context else None, "user", None)  # fallback: compute through db query
         return obj.followers.filter(pk=user.id).exists() if user and user.is_authenticated else False
 
-    @staticmethod
-    def resolve_bio(obj: User, context: dict[str, Any]) -> str | None:
-        return obj.bio or None  # ty: ignore[invalid-return-type] - Safe with this Model
+    @field_validator("bio", mode="before")
+    @classmethod
+    def empty_str_to_none(cls, v: str | None) -> str | None:
+        return v or None
 
-    @staticmethod
-    def resolve_image(obj: User, context: dict[str, Any]) -> str:
-        return obj.image or settings.DEFAULT_USER_IMAGE  # ty: ignore[invalid-return-type] - Safe with this Model
+    @field_validator("image", mode="before")
+    @classmethod
+    def default_image(cls, v: str | None) -> str | None:
+        return v or None
 
 
 class ProfileOutSchema(Schema):
