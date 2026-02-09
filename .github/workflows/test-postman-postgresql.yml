@@ -41,6 +41,7 @@ jobs:
       run: |
         make run DATABASE_URL=postgresql://runner:0000@localhost:5432/db ALLOWED_HOSTS=* &
         sleep 4
+    - uses: oven-sh/setup-bun@v2
     - name: Run Tests
       run: |
         make test-postman

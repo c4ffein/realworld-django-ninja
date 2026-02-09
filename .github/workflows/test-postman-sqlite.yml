@@ -35,6 +35,7 @@ jobs:
       run: |
         make run-debug &
         sleep 4
+    - uses: oven-sh/setup-bun@v2
     - name: Run Tests
       run: |
         make test-postman
