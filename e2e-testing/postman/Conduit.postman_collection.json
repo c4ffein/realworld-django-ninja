@@ -287,6 +287,58 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Verify Update User Persisted",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/user",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var responseJSON = JSON.parse(responseBody);",
+									"pm.test('Response code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('User email matches updated value', function() {",
+									"    pm.expect(responseJSON.user.email).to.eql(pm.globals.get('EMAIL'));",
+									"});",
+									""
+								]
+							}
+						}
+					]
 				}
 			]
 		},
@@ -1754,6 +1806,62 @@
 					"response": []
 				},
 				{
+					"name": "Verify Unfavorite Persisted",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{slug}}",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{slug}}"
+							]
+						}
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var responseJSON = JSON.parse(responseBody);",
+									"pm.test('Response code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Article is no longer favorited', function() {",
+									"    pm.expect(responseJSON.article.favorited).to.eql(false);",
+									"});",
+									"pm.test('Favorites count is 0', function() {",
+									"    pm.expect(responseJSON.article.favoritesCount).to.eql(0);",
+									"});",
+									""
+								]
+							}
+						}
+					]
+				},
+				{
 					"name": "Create Comment for Article",
 					"event": [
 						{
@@ -1777,6 +1885,8 @@
 									"tests['Comment has \"updatedAt\" property'] = comment.hasOwnProperty('updatedAt');",
 									"tests['\"updatedAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(comment.updatedAt);",
 									"tests['Comment has \"author\" property'] = comment.hasOwnProperty('author');",
+									"tests['Comment body is correct'] = comment.body === 'Thank you so much!';",
+									"tests['Comment author username is correct'] = comment.author && comment.author.username === pm.globals.get('USERNAME');",
 									""
 								]
 							}
@@ -1998,6 +2108,61 @@
 					]
 				},
 				{
+					"name": "Verify Comment Deleted",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{slug}}/comments",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{slug}}",
+								"comments"
+							]
+						}
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var responseJSON = JSON.parse(responseBody);",
+									"pm.test('Response code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('No comments remain', function() {",
+									"    pm.expect(responseJSON.comments).to.be.an('array');",
+									"    pm.expect(responseJSON.comments.length).to.eql(0);",
+									"});",
+									""
+								]
+							}
+						}
+					]
+				},
+				{
 					"name": "Delete Article",
 					"request": {
 						"method": "DELETE",
@@ -2149,6 +2314,11 @@
 									"    tests['Profile has \"bio\" property'] = profile.hasOwnProperty('bio');",
 									"    tests['Profile has \"image\" property'] = profile.hasOwnProperty('image');",
 									"    tests['Profile has \"following\" property'] = profile.hasOwnProperty('following');",
+									"",
+									"    tests['Profile username is celeb_USERNAME'] = profile.username === 'celeb_' + pm.globals.get('USERNAME');",
+									"    tests['Profile bio is null'] = profile.bio === null;",
+									"    tests['Profile image is null'] = profile.image === null;",
+									"    tests['Profile following is false'] = profile.following === false;",
 									"}",
 									"}",
 									""
@@ -2320,6 +2490,59 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Verify Unfollow Persisted",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/profiles/celeb_{{USERNAME}}",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"profiles",
+								"celeb_{{USERNAME}}"
+							]
+						}
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var responseJSON = JSON.parse(responseBody);",
+									"pm.test('Response code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Unfollow persisted - following is false', function() {",
+									"    pm.expect(responseJSON.profile.following).to.eql(false);",
+									"});",
+									""
+								]
+							}
+						}
+					]
 				}
 			]
 		},
@@ -2507,6 +2730,11 @@
 									"    // Feed pagination: limit=1 but celeb has 2 articles",
 									"    tests['Only 1 article returned (limit=1)'] = responseJSON.articles.length === 1;",
 									"    tests['articlesCount is exactly 2 (total feed, not page size)'] = responseJSON.articlesCount === 2;",
+									"",
+									"    // Verify feed content: articles come from followed celeb user",
+									"    var firstArticle = responseJSON.articles[0];",
+									"    tests['Feed article author is celeb'] = firstArticle.author.username === 'celeb_' + pm.globals.get('USERNAME');",
+									"    tests['Feed article author.following is true'] = firstArticle.author.following === true;",
 									"}"
 								]
 							}
