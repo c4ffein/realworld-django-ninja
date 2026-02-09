@@ -8,7 +8,7 @@ USERNAME=${USERNAME:-u`date +%s`}
 EMAIL=${EMAIL:-$USERNAME@mail.com}
 PASSWORD=${PASSWORD:-password}
 
-DELAY_REQUEST=${DELAY_REQUEST:-"500"}
+DELAY_REQUEST=${DELAY_REQUEST:-"3"}
 
 bun x newman run $SCRIPTDIR/Conduit.postman_collection.json \
   --delay-request "$DELAY_REQUEST" \
