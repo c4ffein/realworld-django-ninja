@@ -8,8 +8,10 @@ USERNAME=${USERNAME:-u`date +%s`}
 EMAIL=${EMAIL:-$USERNAME@mail.com}
 PASSWORD=${PASSWORD:-password}
 
-npx newman run $SCRIPTDIR/Conduit.postman_collection.json \
-  --delay-request 500 \
+DELAY_REQUEST=${DELAY_REQUEST:-"500"}
+
+bun x newman run $SCRIPTDIR/Conduit.postman_collection.json \
+  --delay-request "$DELAY_REQUEST" \
   --global-var "APIURL=$APIURL" \
   --global-var "USERNAME=$USERNAME" \
   --global-var "EMAIL=$EMAIL" \
