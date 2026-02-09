@@ -75,7 +75,7 @@ class CommentViewTestCase(TestCase):
                         "author": {
                             "username": f"testuser{u}",
                             "bio": None,
-                            "image": "https://api.realworld.io/images/smiley-cyrus.jpeg",
+                            "image": None,
                             "following": make_it_follow and u == 1,
                         },
                     }
@@ -103,7 +103,7 @@ class CommentViewTestCase(TestCase):
                     "author": {
                         "username": "testuser0",
                         "bio": None,
-                        "image": "https://api.realworld.io/images/smiley-cyrus.jpeg",
+                        "image": None,
                         "following": False,
                     },
                 },

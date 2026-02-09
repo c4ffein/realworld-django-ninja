@@ -21,7 +21,7 @@ class ArticleViewSetTest(TestCase):
         self.client = TestClient(
             router, headers={"Authorization": f"Token {access_token}", "Content-Type": "application/json"}
         )
-        self.default_image = "https://api.realworld.io/images/smiley-cyrus.jpeg"
+        self.default_image = None
         self.article = Article.objects.create(
             author=self.user,
             title="Test Title",

@@ -30,7 +30,7 @@ class AccountRegistrationTestCase(TestCase):
                     "username": "testuser",
                     "email": "test@example.com",
                     "bio": None,
-                    "image": settings.DEFAULT_USER_IMAGE,
+                    "image": None,
                     "token": mock.ANY,
                 },
             },
@@ -128,7 +128,7 @@ class AccountLoginTestCase(TestCase):
                     "username": "testuser",
                     "email": "test@example.com",
                     "bio": None,
-                    "image": settings.DEFAULT_USER_IMAGE,
+                    "image": None,
                     "token": mock.ANY,
                 },
             },
@@ -327,7 +327,7 @@ class ProfileDetailViewTestCase(TestCase):
         )
         self.url = f"/profiles/{self.user.username}"
         self.other_url = f"/profiles/{self.other_user.username}"
-        self.dict = {"username": "testuser", "bio": None, "image": settings.DEFAULT_USER_IMAGE, "following": False}
+        self.dict = {"username": "testuser", "bio": None, "image": None, "following": False}
         self.other_dict = {**self.dict, "username": "test2user"}
 
     def test_profile_detail_view_get_self(self):

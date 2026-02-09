@@ -1,6 +1,5 @@
 from typing import Any
 
-from django.conf import settings
 from django.contrib.auth import authenticate
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
@@ -38,7 +37,7 @@ def account_registration(request, data: UserCreateSchema) -> tuple[int, dict[str
             "username": user.username,
             "email": user.email,
             "bio": user.bio or None,
-            "image": user.image or settings.DEFAULT_USER_IMAGE,
+            "image": user.image or None,
             "token": str(jwt_token),
         },
     }
@@ -55,7 +54,7 @@ def account_login(request, data: UserLoginSchema) -> dict[str, Any] | tuple[int,
             "username": user.username,
             "email": user.email,
             "bio": user.bio or None,
-            "image": user.image or settings.DEFAULT_USER_IMAGE,
+            "image": user.image or None,
             "token": str(jwt_token),
         },
     }
