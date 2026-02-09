@@ -86,10 +86,10 @@ WSGI_APPLICATION = "config.wsgi.application"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 # The parsed format follows postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]
 DATABASE_URL = getenv("DATABASE_URL")
-if DATABASE_URL == ":memory:":
+if DATABASE_URL and DATABASE_URL.startswith((":memory:", "file:")):
     if not DEBUG:
-        raise RuntimeError("DATABASE_URL=':memory:' should only be used with DEBUG=True")
-    DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}}
+        raise RuntimeError("In-memory SQLite should only be used with DEBUG=True")
+    DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": DATABASE_URL}}
 elif DATABASE_URL:
     PARSED_DATABASE_URL = urlparse(DATABASE_URL)
     DATABASES = {

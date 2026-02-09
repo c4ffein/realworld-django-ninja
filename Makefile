@@ -2,6 +2,7 @@
 # Variables
 
 DEFAULT_API_URL := "http://localhost:8000"
+MEMDB := "file:memdb1?mode=memory&cache=shared"
 
 ########################
 # Django Project
@@ -14,13 +15,12 @@ help:
 	@echo "  test-django"
 	@echo "  test-django-fast"
 	@echo "  test-postman"
-	@echo "  test-cypress-api"
+	@echo "  test-postman-with-managed-server"
 	@echo "  lint"
 	@echo "  lint-check"
 	@echo "  type-check"
 	@echo "  verify"
 	@echo "  submodule"
-	@echo "  setup-cypress"
 	@echo "  front-setup-react"
 	@echo "  front-run-react"
 	@echo "  front-clean-react"
@@ -47,13 +47,20 @@ test-django:
 	DEBUG=True uv run python manage.py test apps
 
 test-django-fast:
-	DEBUG=True DATABASE_URL=":memory:" USE_FAST_HASHER=True uv run python manage.py test apps
+	DEBUG=True DATABASE_URL=$(MEMDB) USE_FAST_HASHER=True uv run python manage.py test apps
 
 test-postman:
 	cd e2e-testing/postman/; APIURL=http://localhost:8000/api ./run-api-tests.sh
 
-test-cypress-api:
-	cd e2e-testing/cypress/; npm test -- --spec src/api
+test-postman-with-managed-server:
+	DEBUG=True DATABASE_URL=$(MEMDB) USE_FAST_HASHER=True DJANGO_SETTINGS_MODULE=config.settings uv run python -c \
+	"import django; django.setup(); from django.core.management import call_command; call_command('migrate', verbosity=0); call_command('runserver', '0.0.0.0:8000', '--noreload')" & \
+	SERVER_PID=$$!; \
+	while ! curl -s http://localhost:8000/api/tags > /dev/null 2>&1; do sleep 0.2; done; \
+	cd e2e-testing/postman/; APIURL=http://localhost:8000/api ./run-api-tests.sh; \
+	EXIT_CODE=$$?; \
+	kill $$SERVER_PID; \
+	exit $$EXIT_CODE
 
 lint:
 	uv run ruff check --fix; uv run ruff format
@@ -72,9 +79,6 @@ verify:
 
 submodule:
 	git submodule init; git submodule update
-
-setup-cypress:
-	cd e2e-testing/cypress/; npm i
 
 ########################
 # Frontend
