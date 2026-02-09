@@ -8,7 +8,7 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: 1.1.0
+  version: 1.1.1
 tags:
   - name: Articles
   - name: Comments
@@ -47,6 +47,8 @@ paths:
       responses:
         '201':
           $ref: '#/components/responses/UserResponse'
+        '409':
+          $ref: '#/components/responses/ConflictError'
         '422':
           $ref: '#/components/responses/GenericError'
       x-codegen-request-body-name: body
@@ -216,6 +218,8 @@ paths:
           $ref: '#/components/responses/SingleArticleResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/ConflictError'
         '422':
           $ref: '#/components/responses/GenericError'
       security:
@@ -324,7 +328,7 @@ paths:
       requestBody:
         $ref: '#/components/requestBodies/NewCommentRequest'
       responses:
-        '200':
+        '201':
           $ref: '#/components/responses/SingleCommentResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
@@ -462,9 +466,13 @@ components:
         username:
           type: string
         bio:
-          type: string
+          type:
+            - string
+            - 'null'
         image:
-          type: string
+          type:
+            - string
+            - 'null'
     UpdateUser:
       type: object
       properties:
@@ -475,9 +483,13 @@ components:
         username:
           type: string
         bio:
-          type: string
+          type:
+            - string
+            - 'null'
         image:
-          type: string
+          type:
+            - string
+            - 'null'
     Profile:
       required:
         - bio
@@ -489,9 +501,13 @@ components:
         username:
           type: string
         bio:
-          type: string
+          type:
+            - string
+            - 'null'
         image:
-          type: string
+          type:
+            - string
+            - 'null'
         following:
           type: boolean
     Article:
@@ -726,6 +742,12 @@ components:
     Unauthorized:
       description: Unauthorized
       content: { }
+    ConflictError:
+      description: Conflict - resource already exists
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GenericErrorModel'
     GenericError:
       description: Unexpected error
       content:

@@ -3257,7 +3257,7 @@
 								"exec": [
 									"var responseJSON = JSON.parse(responseBody);",
 									"tests['Response code is 401'] = responseCode.code === 401;",
-									"tests['Error message is incorrect credentials'] = responseJSON.detail[0].msg === 'incorrect credentials';"
+									"tests['Error message is invalid credentials'] = responseJSON.errors.body[0] === 'invalid credentials';"
 								]
 							}
 						}
