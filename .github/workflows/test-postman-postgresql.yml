@@ -22,6 +22,8 @@ jobs:
         sudo -u postgres createdb db
         printf "0000\n0000" | sudo -u postgres createuser -s -d -r -P runner
     - uses: actions/checkout@v4
+      with:
+        submodules: true
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
       with:
