@@ -63,7 +63,7 @@ class AccountRegistrationTestCase(TestCase):
             response = self.client.post(self.url, json={"user": {**self.base_user, "username": "gg"}})
         self.assertEqual(User.objects.count(), 1)
         self.assertEqual(response.status_code, 409)
-        self.assertEqual(loads(response.content), {"already_existing": "email"})
+        self.assertEqual(loads(response.content), {"errors": {"email": ["has already been taken"]}})
 
     def test_account_registration_username_already_exists(self):
         response = self.client.post(self.url, json={"user": self.base_user})
@@ -72,7 +72,7 @@ class AccountRegistrationTestCase(TestCase):
             response = self.client.post(self.url, json={"user": {**self.base_user, "email": "gg@example.com"}})
         self.assertEqual(User.objects.count(), 1)
         self.assertEqual(response.status_code, 409)
-        self.assertEqual(loads(response.content), {"already_existing": "username"})
+        self.assertEqual(loads(response.content), {"errors": {"username": ["has already been taken"]}})
 
     def test_account_registration_invalid_data_wrong_email(self):
         response = self.client.post(self.url, json={**self.base_user, "email": "no-at"})
@@ -139,7 +139,7 @@ class AccountLoginTestCase(TestCase):
         user_data = {"user": {"email": self.email, "password": "fail"}}
         response = self.client.post(self.url, json=user_data)
         self.assertEqual(response.status_code, 401)
-        self.assertEqual(loads(response.content), {"detail": [{"msg": "incorrect credentials"}]})
+        self.assertEqual(loads(response.content), {"errors": {"credentials": ["invalid"]}})
 
     def test_account_login_no_password(self):
         user_data = {"user": {"email": self.email}}

@@ -30,7 +30,8 @@ def account_registration(request, data: UserCreateSchema) -> tuple[int, dict[str
     try:
         user = User.objects.create_user(data.user.email, username=data.user.username, password=data.user.password)
     except IntegrityError as err:
-        return 409, {"already_existing": clean_integrity_error(err)}
+        field = clean_integrity_error(err) or "unknown"
+        return 409, {"errors": {field: ["has already been taken"]}}
     jwt_token = create_jwt_token(user)
     return 201, {
         "user": {
@@ -47,7 +48,7 @@ def account_registration(request, data: UserCreateSchema) -> tuple[int, dict[str
 def account_login(request, data: UserLoginSchema) -> dict[str, Any] | tuple[int, dict[str, Any]]:
     user = authenticate(email=data.user.email, password=data.user.password)
     if user is None:
-        return 401, {"detail": [{"msg": "incorrect credentials"}]}
+        return 401, {"errors": {"credentials": ["invalid"]}}
     jwt_token = create_jwt_token(user)
     return {
         "user": {

@@ -18,12 +18,59 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.http import Http404, HttpRequest, HttpResponse
 from django.urls import path
 from ninja import NinjaAPI
+from ninja.errors import AuthorizationError, HttpError, ValidationError
 
 api_prefix = "api"
 
 api = NinjaAPI()
+
+
+@api.exception_handler(ValidationError)
+def validation_error_handler(request: HttpRequest, exc: ValidationError) -> HttpResponse:
+    errors: dict[str, list[str]] = {}
+    for error in exc.errors:
+        loc = error.get("loc", [])
+        field = str(loc[-1]) if loc else "unknown"
+        msg = error.get("msg", "")
+        for prefix in ("Value error, ", "Assertion failed, "):
+            if msg.startswith(prefix):
+                msg = msg[len(prefix) :]
+        errors.setdefault(field, []).append(msg)
+    return api.create_response(request, {"errors": errors}, status=422)
+
+
+@api.exception_handler(Http404)
+def not_found_handler(request: HttpRequest, exc: Http404) -> HttpResponse:
+    path = request.path
+    if "/profiles/" in path:
+        resource = "profile"
+    elif "/articles/" in path:
+        resource = "article"
+    else:
+        resource = "resource"
+    return api.create_response(request, {"errors": {resource: ["not found"]}}, status=404)
+
+
+@api.exception_handler(AuthorizationError)
+def authorization_error_handler(request: HttpRequest, exc: AuthorizationError) -> HttpResponse:
+    path = request.path
+    if "/articles/" in path:
+        resource = "article"
+    else:
+        resource = "resource"
+    return api.create_response(request, {"errors": {resource: ["forbidden"]}}, status=403)
+
+
+@api.exception_handler(HttpError)
+def http_error_handler(request: HttpRequest, exc: HttpError) -> HttpResponse:
+    if exc.status_code == 401:
+        return api.create_response(request, {"errors": {"token": ["is missing"]}}, status=401)
+    return api.create_response(request, {"detail": str(exc)}, status=exc.status_code)
+
+
 api.add_router(f"/{api_prefix}", "accounts.api.router")
 api.add_router(f"/{api_prefix}", "articles.api.router")
 api.add_router(f"/{api_prefix}", "comments.api.router")

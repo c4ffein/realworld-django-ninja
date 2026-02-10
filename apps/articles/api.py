@@ -77,7 +77,10 @@ def create_article(request: AuthedRequest, data: ArticleCreateSchema) -> tuple[i
                 author=request.user,
             )
         except IntegrityError as err:
-            return 409, {"already_existing": clean_integrity_error(err)}
+            field = clean_integrity_error(err) or "title"
+            if field == "slug":
+                field = "title"
+            return 409, {"errors": {field: ["has already been taken"]}}
         if data.article.tags != EMPTY:
             for tag_name in data.article.tags:
                 article.tags.add(tag_name)

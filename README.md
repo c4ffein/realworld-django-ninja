@@ -1,9 +1,9 @@
 # ![RealWorld Example App](logo.png)
 
-> ### Django Ninja + Postgres codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the [RealWorld](https://github.com/gothinkster/realworld) spec and API.
+> ### Django Ninja + Postgres codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the [RealWorld](https://github.com/realworld-apps/realworld) spec and API.
 
 
-### [Demo (of another codebase)](https://demo.realworld.how/)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[RealWorld](https://github.com/gothinkster/realworld)
+### [Demo (of another codebase)](https://demo.realworld.how/)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[RealWorld](https://github.com/realworld-apps/realworld)
 
 This codebase was created to demonstrate a fully fledged fullstack application built with [Django Ninja](https://django-ninja.dev) including CRUD operations, authentication, routing, pagination, and more.
 
@@ -11,10 +11,10 @@ It is using the [realWorld-DjangoRestFramework](https://github.com/Sean-Miningah
 
 So credit is due to [Sean-Miningah](https://github.com/Sean-Miningah/) for any initial code.
 
-For more information on how to this works with other [frontends/backends](https://en.wikipedia.org/wiki/Frontend_and_backend), head over to the [RealWorld](https://github.com/gothinkster/realworld) repo.
+For more information on how to this works with other [frontends/backends](https://en.wikipedia.org/wiki/Frontend_and_backend), head over to the [RealWorld](https://github.com/realworld-apps/realworld) repo.
 
 #### About [RealWorld](https://codebase.show/projects/realworld)
-The [RealWorld Demo App](https://codebase.show/projects/realworld?category=backend&language=python) includes many implementations of the same project ([a Medium clone](https://demo.realworld.io/#/)), for which all [frontends](https://codebase.show/projects/realworld?category=frontend) and [backends](https://codebase.show/projects/realworld?category=backend) are supposed to be switchable from one another [as they all follow the same API](https://github.com/gothinkster/realworld/tree/main/api).
+The [RealWorld Demo App](https://codebase.show/projects/realworld?category=backend&language=python) includes many implementations of the same project ([a Medium clone](https://demo.realworld.io/#/)), for which all [frontends](https://codebase.show/projects/realworld?category=frontend) and [backends](https://codebase.show/projects/realworld?category=backend) are supposed to be switchable from one another [as they all follow the same API](https://github.com/realworld-apps/realworld/tree/main/api).
 
 It is supposed to [`reflect something similar to an early-stage startup's MVP`](https://realworld-docs.netlify.app/docs/implementation-creation/expectations), contrarily to some demo apps that are either too little or too much complex, and provide a good way to assert differences between frameworks.
 
@@ -78,9 +78,8 @@ If you want to rebuild the Docker Image:
 
 ### Testing
 - `make test-django`: Django Ninja tests, uses SQLite by default, specify `DATABASE_URL` to use PostgreSQL.
-- `make test-postman`: API newman tests (needs the application running and `npx` installed).
-- `make test-cypress-api`: API Cypress tests (needs the application running).
-  - `make setup-cypress` is needed to install the dependencies.
+- `make test-postman`: API newman tests (needs the application running, `make submodule`, and `bun` installed).
+- `make test-postman-with-managed-server`: same as the previous target, but runs and manages the server itself.
 
 ### Deploying
 A [Django Ninja](https://django-ninja.dev/) project can be deployed just as any [Django](https://www.djangoproject.com/) project.  
@@ -109,18 +108,12 @@ An auto-generated API documentation using [Swagger](https://swagger.io/) is avai
 
 ## Divergence with the existing, and porting process
 ### Divergence with [realWorld-DjangoRestFramework](https://github.com/Sean-Miningah/realWorld-DjangoRestFramework)
-- Contrarily to the [RealWorld API spec](https://github.com/gothinkster/realworld/blob/main/api/openapi.yml), [realWorld-DjangoRestFramework](https://github.com/Sean-Miningah/realWorld-DjangoRestFramework) returns [HTTP 404](https://developer.mozilla.org/fr/docs/Web/HTTP/Status/404) for nearly anything that goes wrong. This was replaced by [the default Django Ninja handlers and some custom behavior](https://django-ninja.dev/guides/errors/).
+- Contrarily to the [RealWorld API spec](https://github.com/realworld-apps/realworld/blob/main/api/openapi.yml), [realWorld-DjangoRestFramework](https://github.com/Sean-Miningah/realWorld-DjangoRestFramework) returns [HTTP 404](https://developer.mozilla.org/fr/docs/Web/HTTP/Status/404) for nearly anything that goes wrong. This was replaced by custom exception handlers on the [NinjaAPI](https://django-ninja.dev/guides/errors/) that return errors in the standard RealWorld format.
 
-### Divergence with the [RealWorld API spec](https://github.com/gothinkster/realworld/blob/main/api/openapi.yml)
-- While the [RealWorld API spec](https://github.com/gothinkster/realworld/blob/main/api/openapi.yml) uses the [HTTP 422](https://developer.mozilla.org/fr/docs/Web/HTTP/Status/422) for most errors, we are not just using an array but the output from [the default ValidationError handler](https://django-ninja.dev/guides/errors/#ninjaerrorsvalidationerror).
-- This project handles some HTTP error codes differently:
-  - Makes a difference between [401](https://developer.mozilla.org/fr/docs/Web/HTTP/Status/401) and [403](https://developer.mozilla.org/fr/docs/Web/HTTP/Status/403).
-  - Uses [409](https://developer.mozilla.org/fr/docs/Web/HTTP/Status/409) sometimes.
-- Some additional checks for data consistency (example: now verifies that email addresses are indeed email addresses and not just random strings, that change made some e2e tests failed).
 
 ### Commits that are a good illustration of the migration from [Django REST framework](https://www.django-rest-framework.org) to [Django Ninja](https://django-ninja.dev)
 Before the heaviest modifications, some small commits have been made with the intention to well present the migration process.  
-*Please note that many tests were added after and not before the migration, as, even if in a real world scenario you would try to add as-much tests before (to ensure that you don't break anything), the goal here was mainly to provide a [Django Ninja](https://django-ninja.dev) of the [RealWorld demo app](https://github.com/gothinkster/realworld). See [`Divergence with the existing`](#divergence-with-the-existing).*
+*Please note that many tests were added after and not before the migration, as, even if in a real world scenario you would try to add as-much tests before (to ensure that you don't break anything), the goal here was mainly to provide a [Django Ninja](https://django-ninja.dev) of the [RealWorld demo app](https://github.com/realworld-apps/realworld).*
 - [`df3f024a`](https://github.com/c4ffein/realworld-django-ninja/commit/df3f024a0fcbb5694de7d29d9a3cc3d50cde111c): Good example of migrating just one route.
   - Focused on the quick fix of the `/api/articles/tag` route in `articles/api.py`, and the modification of `articles/urls.py` that lets that route be handled by the [Django Ninja router](https://django-ninja.dev/guides/routers/).
   - UT is adapted, the existing [Django REST framework](https://www.django-rest-framework.org) `ViewSet` deleted.

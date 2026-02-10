@@ -55,10 +55,10 @@ class UserInCreateSchema(ModelSchema):
         model = User
         fields = ["email", "password", "username"]
 
-    @field_validator("email", "password", "username", check_fields=False)
+    @field_validator("email", "password", "username", check_fields=False, mode="before")
     @classmethod
-    def non_empty(cls, v: str) -> str:
-        if not v:
+    def non_empty(cls, v: object) -> object:
+        if isinstance(v, str) and not v:
             raise ValueError("can't be blank")
         return v
 

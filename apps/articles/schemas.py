@@ -2,7 +2,7 @@ from datetime import datetime
 
 from accounts.schemas import ProfileSchema
 from ninja import Field, ModelSchema, Schema
-from pydantic import SerializeAsAny, validator
+from pydantic import SerializeAsAny, field_validator
 
 from articles.models import Article
 from helpers.empty import EMPTY
@@ -41,9 +41,11 @@ class ArticleInCreateSchema(Schema):
     content: str = Field(alias="body")
     tags: SerializeAsAny[list[str]] = Field(EMPTY, alias="tagList")
 
-    @validator("content", "summary", "title")
+    @field_validator("content", "summary", "title")
+    @classmethod
     def check_not_empty(cls, v: str) -> str:
-        assert v != "", "can't be blank"
+        if not v:
+            raise ValueError("can't be blank")
         return v
 
 
@@ -56,9 +58,11 @@ class ArticleInPartialUpdateSchema(Schema):
     summary: str | None = Field(None, alias="description")
     content: str | None = Field(None, alias="body")
 
-    @validator("content", "summary", "title")
+    @field_validator("content", "summary", "title")
+    @classmethod
     def check_not_empty(cls, v: str | None) -> str | None:
-        assert v != "", "can't be blank"
+        if v is not None and not v:
+            raise ValueError("can't be blank")
         return v
 
 
