@@ -42,26 +42,32 @@ def validation_error_handler(request: HttpRequest, exc: ValidationError) -> Http
     return api.create_response(request, {"errors": errors}, status=422)
 
 
+def _resource_from_path(path: str) -> str:
+    if "/comments/" in path:
+        return "comment"
+    if "/profiles/" in path:
+        return "profile"
+    if "/articles/" in path:
+        return "article"
+    return "resource"
+
+
+_MODEL_TO_RESOURCE = {"Article": "article", "Comment": "comment", "User": "profile"}
+
+
 @api.exception_handler(Http404)
 def not_found_handler(request: HttpRequest, exc: Http404) -> HttpResponse:
-    path = request.path
-    if "/profiles/" in path:
-        resource = "profile"
-    elif "/articles/" in path:
-        resource = "article"
-    else:
-        resource = "resource"
+    message = str(exc)
+    resource = next(
+        (r for model, r in _MODEL_TO_RESOURCE.items() if model in message),
+        _resource_from_path(request.path),
+    )
     return api.create_response(request, {"errors": {resource: ["not found"]}}, status=404)
 
 
 @api.exception_handler(AuthorizationError)
 def authorization_error_handler(request: HttpRequest, exc: AuthorizationError) -> HttpResponse:
-    path = request.path
-    if "/articles/" in path:
-        resource = "article"
-    else:
-        resource = "resource"
-    return api.create_response(request, {"errors": {resource: ["forbidden"]}}, status=403)
+    return api.create_response(request, {"errors": {_resource_from_path(request.path): ["forbidden"]}}, status=403)
 
 
 @api.exception_handler(HttpError)
@@ -74,7 +80,6 @@ def http_error_handler(request: HttpRequest, exc: HttpError) -> HttpResponse:
 api.add_router(f"/{api_prefix}", "accounts.api.router")
 api.add_router(f"/{api_prefix}", "articles.api.router")
 api.add_router(f"/{api_prefix}", "comments.api.router")
-api.add_router("/images", "image_server.api.router")
 api.add_router("/auth", "jwt_ninja.api.router")
 
 urlpatterns = [

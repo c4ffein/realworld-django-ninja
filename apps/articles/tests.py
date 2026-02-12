@@ -51,6 +51,7 @@ class ArticleViewSetTest(TestCase):
             "favoritesCount": 0,
             "author": {"username": "testuser", "bio": None, "image": self.default_image, "following": False},
         }
+        self.article_list_out = {k: v for k, v in self.article_out.items() if k != "body"}
         self.other_article_out = {
             "slug": "other-test-title",
             "title": "Other Test Title",
@@ -63,6 +64,7 @@ class ArticleViewSetTest(TestCase):
             "favoritesCount": 0,
             "author": {"username": "otheruser", "bio": None, "image": self.default_image, "following": True},
         }
+        self.other_article_list_out = {k: v for k, v in self.other_article_out.items() if k != "body"}
 
     def _valid_timestamps_in_output_dict(self, output_dict):
         ts_regex = r"\b[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]*Z\b"
@@ -72,40 +74,40 @@ class ArticleViewSetTest(TestCase):
     def test_get_articles_no_filter(self):
         response = self.client.get("/articles", user=self.user)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data.get("articles", None), [self.other_article_out, self.article_out])
+        self.assertEqual(response.data.get("articles", None), [self.other_article_list_out, self.article_list_out])
         self._valid_timestamps_in_output_dict(response.data.get("articles", None)[0])
         self._valid_timestamps_in_output_dict(response.data.get("articles", None)[1])
 
     def test_get_articles_filter_by_tag(self):
         response = self.client.get("/articles?tag=OT", user=self.user)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data.get("articles", None), [self.other_article_out])
+        self.assertEqual(response.data.get("articles", None), [self.other_article_list_out])
         self._valid_timestamps_in_output_dict(response.data.get("articles", None)[0])
 
     def test_get_articles_filter_by_author(self):
         response = self.client.get("/articles?author=otheruser", user=self.user)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data.get("articles", None), [self.other_article_out])
+        self.assertEqual(response.data.get("articles", None), [self.other_article_list_out])
         self._valid_timestamps_in_output_dict(response.data.get("articles", None)[0])
 
     def test_get_articles_filter_by_favorited(self):
         self.other_article.favorites.add(self.user)
         response = self.client.get("/articles?favorited=testuser", user=self.user)
         self.assertEqual(response.status_code, 200)
-        expected_article = {**self.other_article_out, "favorited": True, "favoritesCount": 1}
+        expected_article = {**self.other_article_list_out, "favorited": True, "favoritesCount": 1}
         self.assertEqual(response.data.get("articles", None), [expected_article])
         self._valid_timestamps_in_output_dict(response.data.get("articles", None)[0])
 
     def test_get_articles_with_limit(self):
         response = self.client.get("/articles?limit=1", user=self.user)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data.get("articles", None), [self.other_article_out])
+        self.assertEqual(response.data.get("articles", None), [self.other_article_list_out])
         self._valid_timestamps_in_output_dict(response.data.get("articles", None)[0])
 
     def test_get_articles_with_offset(self):
         response = self.client.get("/articles?offset=1", user=self.user)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data.get("articles", None), [self.article_out])
+        self.assertEqual(response.data.get("articles", None), [self.article_list_out])
         self._valid_timestamps_in_output_dict(response.data.get("articles", None)[0])
 
     def test_get_article_feed_no_filter(self):
@@ -120,7 +122,6 @@ class ArticleViewSetTest(TestCase):
                         "slug": "other-test-title",
                         "title": "Other Test Title",
                         "description": "Other Test summary",
-                        "body": "Other Test content",
                         "tagList": ["OT"],
                         "createdAt": mock.ANY,
                         "updatedAt": mock.ANY,

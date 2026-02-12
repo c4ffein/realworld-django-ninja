@@ -154,7 +154,3 @@ JWT_NINJA = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=7),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
-
-
-# Default user image
-DEFAULT_USER_IMAGE = "https://api.realworld.io/images/smiley-cyrus.jpeg"

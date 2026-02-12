@@ -9,7 +9,7 @@ from ninja.errors import AuthorizationError
 from taggit.models import Tag
 
 from articles.models import Article
-from articles.schemas import ArticleCreateSchema, ArticleOutSchema, ArticlePartialUpdateSchema
+from articles.schemas import ArticleCreateSchema, ArticleListOutSchema, ArticleOutSchema, ArticlePartialUpdateSchema
 from helpers.empty import EMPTY
 from helpers.exceptions import clean_integrity_error
 from helpers.jwt_utils import AuthedRequest, TokenAuth
@@ -43,7 +43,7 @@ def feed(request: AuthedRequest, limit: int = 20, offset: int = 0) -> dict[str, 
     articles = list(queryset[offset : offset + limit])
     return {
         "articlesCount": queryset.count(),
-        "articles": [ArticleOutSchema.from_orm(a, context={"request": request}) for a in articles],
+        "articles": [ArticleListOutSchema.from_orm(a, context={"request": request}) for a in articles],
     }
 
 
@@ -63,7 +63,7 @@ def list_articles(
     queryset = queryset.order_by("-created")
     articles = list(queryset[offset : offset + limit])
     return {
-        "articles": [ArticleOutSchema.from_orm(a, context={"request": request}) for a in articles],
+        "articles": [ArticleListOutSchema.from_orm(a, context={"request": request}) for a in articles],
         "articlesCount": queryset.count(),
     }
 

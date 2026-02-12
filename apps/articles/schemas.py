@@ -35,6 +35,10 @@ class ArticleOutSchema(ModelSchema):
         return sorted(obj.tags if isinstance(obj.tags, list) else [t.name for t in obj.tags.all()])
 
 
+class ArticleListOutSchema(ArticleOutSchema):
+    body: str = Field(alias="content", exclude=True)
+
+
 class ArticleInCreateSchema(Schema):
     title: str
     summary: str = Field(alias="description")
