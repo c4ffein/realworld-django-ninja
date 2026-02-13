@@ -42,6 +42,6 @@ jobs:
     - name: Run Django
       run: |
         make run DATABASE_URL=postgresql://runner:0000@localhost:5432/db ALLOWED_HOSTS=* &
-        sleep 4
+        timeout 30 bash -c 'while ! curl -s http://localhost:8000/api/tags > /dev/null 2>&1; do sleep 0.2; done'
     - name: Run Tests
       run: make test-hurl

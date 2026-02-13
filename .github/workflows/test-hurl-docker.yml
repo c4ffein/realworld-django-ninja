@@ -23,5 +23,6 @@ jobs:
     - name: Compose Up
       run: |
         docker compose up -d --wait
+        timeout 30 bash -c 'while ! curl -s http://localhost:8000/api/tags > /dev/null 2>&1; do sleep 0.2; done'
     - name: Run Tests
       run: make test-hurl
