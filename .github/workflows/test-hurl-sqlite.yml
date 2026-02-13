@@ -1,4 +1,4 @@
-name: Test Postman SQLite
+name: Test Hurl SQLite
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
@@ -22,22 +22,13 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Set up uv
+      uses: astral-sh/setup-uv@v5
+    - name: Install Hurl
+      run: |
+        curl -sSL https://github.com/Orange-OpenSource/hurl/releases/latest/download/hurl-7.1.0-x86_64-unknown-linux-gnu.tar.gz | tar xz
+        echo "$PWD/hurl-7.1.0-x86_64-unknown-linux-gnu/bin" >> "$GITHUB_PATH"
     - name: Install Dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install uv
-        uv venv .venv
-        . .venv/bin/activate
-        uv pip install .[dev]
-    - name: Migrate
-      run: |
-        . .venv/bin/activate
-        DEBUG=True python manage.py migrate
-    - name: Run Django
-      run: |
-        make run-debug &
-        sleep 4
-    - uses: oven-sh/setup-bun@v2
+      run: make sync
     - name: Run Tests
-      run: |
-        make test-postman
+      run: make test-hurl-with-managed-server
