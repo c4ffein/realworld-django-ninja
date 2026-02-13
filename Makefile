@@ -14,8 +14,6 @@ help:
 	@echo "  run"
 	@echo "  test-django"
 	@echo "  test-django-fast"
-	@echo "  test-postman"
-	@echo "  test-postman-with-managed-server"
 	@echo "  test-hurl"
 	@echo "  test-hurl-with-managed-server"
 	@echo "  lint"
@@ -51,19 +49,6 @@ test-django:
 test-django-fast:
 	DEBUG=True DATABASE_URL=$(MEMDB) USE_FAST_HASHER=True uv run python manage.py test apps
 
-test-postman:
-	cd realworld/api/; DELAY_REQUEST=3 APIURL=http://localhost:8000/api ./run-api-tests.sh
-
-test-postman-with-managed-server:
-	DEBUG=True DATABASE_URL=$(MEMDB) USE_FAST_HASHER=True DJANGO_SETTINGS_MODULE=config.settings uv run python -c \
-	"import django; django.setup(); from django.core.management import call_command; call_command('migrate', verbosity=0); call_command('runserver', '0.0.0.0:8000', '--noreload')" & \
-	SERVER_PID=$$!; \
-	while ! curl -s http://localhost:8000/api/tags > /dev/null 2>&1; do sleep 0.2; done; \
-	cd realworld/api/; DELAY_REQUEST=3 APIURL=http://localhost:8000/api ./run-api-tests.sh; \
-	EXIT_CODE=$$?; \
-	kill $$SERVER_PID; \
-	exit $$EXIT_CODE
-
 test-hurl:
 	HOST=http://localhost:8000 realworld/api/hurl/run-hurl-tests.sh
 
@@ -72,7 +57,7 @@ test-hurl-with-managed-server:
 	"import django; django.setup(); from django.core.management import call_command; call_command('migrate', verbosity=0); call_command('runserver', '0.0.0.0:8000', '--noreload')" & \
 	SERVER_PID=$$!; \
 	while ! curl -s http://localhost:8000/api/tags > /dev/null 2>&1; do sleep 0.2; done; \
-	HOST=http://localhost:8000 realworld/api/hurl/run-hurl-tests.sh; \
+	HOST=http://localhost:8000 realworld/api/run-api-tests-hurl.sh; \
 	EXIT_CODE=$$?; \
 	kill $$SERVER_PID; \
 	exit $$EXIT_CODE
