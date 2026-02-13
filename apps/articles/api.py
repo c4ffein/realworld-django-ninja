@@ -3,7 +3,6 @@ from typing import Any
 from accounts.models import User
 from django.db import IntegrityError, transaction
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.errors import AuthorizationError
 from taggit.models import Tag
@@ -11,7 +10,7 @@ from taggit.models import Tag
 from articles.models import Article
 from articles.schemas import ArticleCreateSchema, ArticleListOutSchema, ArticleOutSchema, ArticlePartialUpdateSchema
 from helpers.empty import EMPTY
-from helpers.exceptions import clean_integrity_error
+from helpers.exceptions import clean_integrity_error, get_or_404
 from helpers.jwt_utils import AuthedRequest, TokenAuth
 
 router = Router()
@@ -19,20 +18,22 @@ router = Router()
 
 @router.post("/articles/{slug}/favorite", auth=TokenAuth(), response={200: Any, 404: Any})
 def favorite(request: AuthedRequest, slug: str) -> dict[str, Any] | tuple[int, dict[str, Any]]:
-    article = get_object_or_404(Article.objects.with_favorites(request.user), slug=slug)
+    article = get_or_404(Article.objects.with_favorites(request.user), "article", slug=slug)
     if article.favorites.filter(id=request.user.id).exists():
         return 409, {"errors": {"body": ["Already Favourited Article"]}}
     article.favorites.add(request.user)
-    article = get_object_or_404(Article.objects.with_favorites(request.user), id=article.id)  # Now with updated values
+    qs = Article.objects.with_favorites(request.user)
+    article = get_or_404(qs, "article", id=article.id)  # Now with updated values
     return {"article": ArticleOutSchema.from_orm(article, context={"request": request})}
 
 
 @router.delete("/articles/{slug}/favorite", auth=TokenAuth(), response={200: Any, 404: Any})
 def unfavorite(request: AuthedRequest, slug: str) -> dict[str, Any]:
-    article = get_object_or_404(Article.objects.with_favorites(request.user), slug=slug)
-    get_object_or_404(article.favorites, id=request.user.id)
+    article = get_or_404(Article.objects.with_favorites(request.user), "article", slug=slug)
+    get_or_404(article.favorites, "article", id=request.user.id)
     article.favorites.remove(request.user.id)
-    article = get_object_or_404(Article.objects.with_favorites(request.user), id=article.id)  # Now with updated values
+    qs = Article.objects.with_favorites(request.user)
+    article = get_or_404(qs, "article", id=article.id)  # Now with updated values
     return {"article": ArticleOutSchema.from_orm(article, context={"request": request})}
 
 
@@ -85,19 +86,19 @@ def create_article(request: AuthedRequest, data: ArticleCreateSchema) -> tuple[i
             for tag_name in data.article.tags:
                 article.tags.add(tag_name)
         article.save()
-    article = get_object_or_404(Article.objects.with_favorites(request.user), id=article.id)
+    article = get_or_404(Article.objects.with_favorites(request.user), "article", id=article.id)
     return 201, {"article": ArticleOutSchema.from_orm(article, context={"request": request})}
 
 
 @router.get("/articles/{slug}", auth=TokenAuth(pass_even=True), response={200: Any, 404: Any})
 def retrieve(request, slug: str) -> dict[str, Any]:
-    article = get_object_or_404(Article.objects.with_favorites(request.user), slug=slug)
+    article = get_or_404(Article.objects.with_favorites(request.user), "article", slug=slug)
     return {"article": ArticleOutSchema.from_orm(article, context={"request": request})}
 
 
 @router.delete("/articles/{slug}", auth=TokenAuth(), response={200: Any, 204: Any, 404: Any, 403: Any, 401: Any})
 def destroy(request: AuthedRequest, slug: str) -> HttpResponse:
-    article = get_object_or_404(Article, slug=slug)
+    article = get_or_404(Article, "article", slug=slug)
     if request.user != article.author:
         raise AuthorizationError
     article.delete()
@@ -108,7 +109,7 @@ def destroy(request: AuthedRequest, slug: str) -> HttpResponse:
 @router.put("/articles/{slug}", auth=TokenAuth(), response={200: Any, 404: Any, 403: Any, 401: Any})
 def update(request: AuthedRequest, slug: str, data: ArticlePartialUpdateSchema) -> dict[str, Any]:
     """This is wrong, but this method behaves like a PATCH, as required by the RealWorld API spec"""
-    article = get_object_or_404(Article.objects.with_favorites(request.user), slug=slug)
+    article = get_or_404(Article.objects.with_favorites(request.user), "article", slug=slug)
     if request.user != article.author:
         raise AuthorizationError
     updated_fields = []

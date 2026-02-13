@@ -2,7 +2,6 @@ from typing import Any
 
 from django.contrib.auth import authenticate
 from django.db import IntegrityError
-from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.errors import AuthorizationError
 
@@ -19,7 +18,7 @@ from accounts.schemas import (
     UserPartialUpdateInSchema,
     UserPartialUpdateOutSchema,
 )
-from helpers.exceptions import clean_integrity_error
+from helpers.exceptions import clean_integrity_error, get_or_404
 from helpers.jwt_utils import AuthedRequest, TokenAuth, create_jwt_token
 
 router = Router()
@@ -86,7 +85,7 @@ def put_user(request: AuthedRequest, data: UserPartialUpdateInSchema) -> UserPar
 @router.get("/profiles/{username}", auth=TokenAuth(pass_even=True), response={200: Any, 401: Any, 404: Any})
 def get_profile(request, username: str) -> ProfileOutSchema:
     return ProfileOutSchema.model_construct(
-        profile=ProfileSchema.from_orm(get_object_or_404(User, username=username), context={"request": request})
+        profile=ProfileSchema.from_orm(get_or_404(User, "profile", username=username), context={"request": request})
     )
 
 
@@ -94,7 +93,7 @@ def get_profile(request, username: str) -> ProfileOutSchema:
     "/profiles/{username}/follow", auth=TokenAuth(), response={200: Any, 400: Any, 403: Any, 404: Any, 409: Any}
 )
 def follow_profile(request: AuthedRequest, username: str) -> tuple[int, None] | ProfileOutSchema:
-    profile = get_object_or_404(User, username=username)
+    profile = get_or_404(User, "profile", username=username)
     if profile == request.user:
         raise AuthorizationError
     if profile.followers.filter(pk=request.user.id).exists():
@@ -107,7 +106,7 @@ def follow_profile(request: AuthedRequest, username: str) -> tuple[int, None] | 
     "/profiles/{username}/follow", auth=TokenAuth(), response={200: Any, 400: Any, 403: Any, 404: Any, 409: Any}
 )
 def unfollow_profile(request: AuthedRequest, username: str) -> tuple[int, None] | ProfileOutSchema:
-    profile = get_object_or_404(User, username=username)
+    profile = get_or_404(User, "profile", username=username)
     if profile == request.user:
         raise AuthorizationError
     if not profile.followers.filter(pk=request.user.id).exists():

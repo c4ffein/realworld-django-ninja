@@ -23,6 +23,8 @@ from django.urls import path
 from ninja import NinjaAPI
 from ninja.errors import AuthorizationError, HttpError, ValidationError
 
+from helpers.exceptions import ResourceNotFound
+
 api_prefix = "api"
 
 api = NinjaAPI()
@@ -52,16 +54,9 @@ def _resource_from_path(path: str) -> str:
     return "resource"
 
 
-_MODEL_TO_RESOURCE = {"Article": "article", "Comment": "comment", "User": "profile"}
-
-
 @api.exception_handler(Http404)
 def not_found_handler(request: HttpRequest, exc: Http404) -> HttpResponse:
-    message = str(exc)
-    resource = next(
-        (r for model, r in _MODEL_TO_RESOURCE.items() if model in message),
-        _resource_from_path(request.path),
-    )
+    resource = exc.resource if isinstance(exc, ResourceNotFound) else _resource_from_path(request.path)
     return api.create_response(request, {"errors": {resource: ["not found"]}}, status=404)
 
 

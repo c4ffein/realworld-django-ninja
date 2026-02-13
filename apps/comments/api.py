@@ -2,7 +2,6 @@ from accounts.models import User
 from articles.models import Article
 from django.db.models import Exists, OuterRef, Value
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.errors import AuthorizationError
 
@@ -13,6 +12,7 @@ from comments.schemas import (
     CommentOutSchema,
     CommentsListOutSchema,
 )
+from helpers.exceptions import get_or_404
 from helpers.jwt_utils import AuthedRequest, TokenAuth
 
 router = Router()
@@ -27,7 +27,7 @@ def _annotate_author_following(queryset, user):
 
 @router.get("/articles/{slug}/comments", auth=TokenAuth(pass_even=True), response={200: CommentsListOutSchema})
 def list_comments(request, slug: str) -> CommentsListOutSchema:
-    article = get_object_or_404(Article, slug=slug)
+    article = get_or_404(Article, "article", slug=slug)
     comments = Comment.objects.filter(article=article).select_related("author").order_by("-created")
     comments = _annotate_author_following(comments, request.user)
 
@@ -44,7 +44,7 @@ def list_comments(request, slug: str) -> CommentsListOutSchema:
 def create_comment(
     request: AuthedRequest, data: CommentContainerSchemaIn, slug: str
 ) -> tuple[int, CommentOutContainerSchema]:
-    article = get_object_or_404(Article, slug=slug)
+    article = get_or_404(Article, "article", slug=slug)
     comment = Comment.objects.create(
         article=article,
         author=request.user,
@@ -58,8 +58,8 @@ def create_comment(
 
 @router.delete("/articles/{slug}/comments/{comment_id}", auth=TokenAuth(), response={204: None})
 def delete_comment(request: AuthedRequest, slug: str, comment_id: int) -> HttpResponse:
-    get_object_or_404(Article, slug=slug)
-    comment = get_object_or_404(Comment, id=comment_id)
+    get_or_404(Article, "article", slug=slug)
+    comment = get_or_404(Comment, "comment", id=comment_id)
     if comment.author != request.user and comment.article.author != request.user:
         raise AuthorizationError
     comment.delete()
