@@ -179,7 +179,7 @@ class UserViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             loads(response.content),
-            {"user": {"username": self.username, "email": self.email, "bio": "", "image": None, "token": mock.ANY}},
+            {"user": {"username": self.username, "email": self.email, "bio": None, "image": None, "token": mock.ANY}},
         )
         self.assertEqual(len(loads(response.content)["user"]["token"].split(".")), 3)
 
@@ -195,9 +195,10 @@ class UserViewTestCase(TestCase):
         filtered_update = {k: v for i, (k, v) in enumerate(self.base_update.items()) if bools[i]}
         response = self.client.put(self.url, json={"user": filtered_update})
         saved_user_value = {"email": "test@example.com", "username": "testuser", "bio": "", "image": None}
+        api_user_value = {**saved_user_value, "bio": None}
         base_values = {"id": self.user.id, "last_login": None, "date_joined": mock.ANY, "password": mock.ANY}
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(loads(response.content), {"user": {**saved_user_value, **filtered_update, "token": mock.ANY}})
+        self.assertEqual(loads(response.content), {"user": {**api_user_value, **filtered_update, "token": mock.ANY}})
         self.assertEqual(sum(1 for c in loads(response.content)["user"]["token"] if c == "."), 2)
         self.assertEqual(
             User.objects.values().last(),
@@ -208,9 +209,10 @@ class UserViewTestCase(TestCase):
         """This is wrong, but this method behaves like a PATCH, as required by the RealWorld API spec"""
         response = self.client.put(self.url, json={"user": {"password": "new_pass"}})
         saved_user_value = {"email": "test@example.com", "username": "testuser", "bio": "", "image": None}
+        api_user_value = {**saved_user_value, "bio": None}
         base_values = {"id": self.user.id, "last_login": None, "date_joined": mock.ANY, "password": mock.ANY}
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(loads(response.content), {"user": {**saved_user_value, "token": mock.ANY}})
+        self.assertEqual(loads(response.content), {"user": {**api_user_value, "token": mock.ANY}})
         self.assertEqual(sum(1 for c in loads(response.content)["user"]["token"] if c == "."), 2)
         self.assertEqual(
             User.objects.values().last(),

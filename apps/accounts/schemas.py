@@ -86,10 +86,17 @@ class UserLoginSchema(Schema):
 
 class UserAnySchema(ModelSchema):
     email: EmailStr
+    bio: str | None
+    image: str | None
 
     class Meta:
         model = User
         fields = ["email", "bio", "image", "username"]
+
+    @field_validator("bio", "image", mode="before")
+    @classmethod
+    def empty_str_to_none(cls, v: str | None) -> str | None:
+        return v or None
 
 
 class UserMineSchema(UserAnySchema):
