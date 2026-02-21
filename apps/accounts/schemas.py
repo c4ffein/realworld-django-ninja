@@ -118,6 +118,13 @@ class UserInPartialUpdateInSchema(Schema):
     username: Annotated[str | None | _Empty, AfterValidator(none_to_blank)] = EMPTY
     password: Annotated[str | None | _Empty, AfterValidator(none_to_blank)] = EMPTY
 
+    @field_validator("email", "username", "password", check_fields=False, mode="after")
+    @classmethod
+    def non_empty(cls, v: object) -> object:
+        if isinstance(v, str) and not v:
+            raise ValueError("can't be blank")
+        return v
+
 
 class UserPartialUpdateInSchema(Schema):
     user: UserInPartialUpdateInSchema
