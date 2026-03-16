@@ -8,7 +8,7 @@ from ninja.testing import TestClient
 from parameterized import parameterized
 
 from articles.api import router
-from articles.models import Article
+from articles.models import Article, Tag
 from helpers.jwt_utils import create_jwt_token
 
 User = get_user_model()
@@ -37,7 +37,8 @@ class ArticleViewSetTest(TestCase):
             content="Other Test content",
             slug="other-test-slug",
         )
-        self.other_article.tags.add("OT")
+        ot_tag = Tag.objects.create(name="OT")
+        self.other_article.tags.add(ot_tag)
         self.other_user.followers.add(self.user)
         self.article_out = {
             "slug": "test-title",
@@ -226,7 +227,7 @@ class ArticleViewSetTest(TestCase):
                 "updated": mock.ANY,
             },
         )
-        self.assertEqual({t.name for t in Article.objects.last().tags.all()}, {"tag", "taag", "taaag"})
+        self.assertEqual(set(Article.objects.last().tags.values_list("name", flat=True)), {"tag", "taag", "taaag"})
 
     def test_create_article_without_tag_field(self):
         new_article_data = {
@@ -271,7 +272,7 @@ class ArticleViewSetTest(TestCase):
                 "updated": mock.ANY,
             },
         )
-        self.assertEqual({t.name for t in Article.objects.last().tags.all()}, set())
+        self.assertEqual(set(Article.objects.last().tags.values_list("name", flat=True)), set())
 
     def test_create_article_invalid_data_0_len_title(self):
         new_article_data = {
@@ -488,7 +489,8 @@ class TagViewSet(TestCase):
             content="Test content",
             slug="test-slug",
         )
-        self.article.tags.add("red", "green", "blue")
+        for name in ("red", "green", "blue"):
+            self.article.tags.add(Tag.objects.create(name=name))
 
     def test_list_tags(self):
         response = self.client.get("/tags")

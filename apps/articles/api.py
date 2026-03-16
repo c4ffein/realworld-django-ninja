@@ -5,9 +5,8 @@ from django.db import IntegrityError, transaction
 from django.http import HttpResponse
 from ninja import Router
 from ninja.errors import AuthorizationError
-from taggit.models import Tag
 
-from articles.models import Article
+from articles.models import Article, Tag
 from articles.schemas import ArticleCreateSchema, ArticleListOutSchema, ArticleOutSchema, ArticlePartialUpdateSchema
 from helpers.empty import EMPTY
 from helpers.exceptions import clean_integrity_error, get_or_404
@@ -71,6 +70,9 @@ def list_articles(
 
 @router.post("/articles", auth=TokenAuth(), response={201: Any, 409: Any, 422: Any})
 def create_article(request: AuthedRequest, data: ArticleCreateSchema) -> tuple[int, dict[str, Any]]:
+    tag_objs = (
+        [Tag.objects.get_or_create(name=name)[0] for name in data.article.tags] if data.article.tags != EMPTY else []
+    )
     with transaction.atomic():
         try:
             article = Article.objects.create(
@@ -82,10 +84,8 @@ def create_article(request: AuthedRequest, data: ArticleCreateSchema) -> tuple[i
             if field == "slug":
                 field = "title"
             return 409, {"errors": {field: ["has already been taken"]}}
-        if data.article.tags != EMPTY:
-            for tag_name in data.article.tags:
-                article.tags.add(tag_name)
-        article.save()
+        if tag_objs:
+            article.tags.set(tag_objs)
     article = get_or_404(Article.objects.with_favorites(request.user), "article", id=article.id)
     return 201, {"article": ArticleOutSchema.from_orm(article, context={"request": request})}
 
@@ -112,11 +112,18 @@ def update(request: AuthedRequest, slug: str, data: ArticlePartialUpdateSchema) 
     article = get_or_404(Article.objects.with_favorites(request.user), "article", slug=slug)
     if request.user != article.author:
         raise AuthorizationError
-    updated_fields = []
-    for attr, value in data.article.dict(exclude_unset=True).items():
-        setattr(article, attr, value)
-        updated_fields.extend(["title", "slug"] if attr == "title" else [attr])
-    article.save(update_fields=updated_fields)  # Prevents some race condition
+    update_data = data.article.dict(exclude_unset=True)
+    new_tags = update_data.pop("tags", EMPTY)
+    tag_objs = [Tag.objects.get_or_create(name=name)[0] for name in new_tags] if new_tags is not EMPTY else EMPTY
+    with transaction.atomic():
+        updated_fields = []
+        for attr, value in update_data.items():
+            setattr(article, attr, value)
+            updated_fields.extend(["title", "slug"] if attr == "title" else [attr])
+        updated_fields.append("updated")
+        article.save(update_fields=updated_fields)
+        if tag_objs is not EMPTY:
+            article.tags.set(tag_objs)
     return {"article": ArticleOutSchema.from_orm(article, context={"request": request})}
 
 

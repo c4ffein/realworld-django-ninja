@@ -6,9 +6,15 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.db import models
 from django.utils.text import slugify
-from taggit.managers import TaggableManager
 
 User = get_user_model()
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self) -> str:
+        return self.name
 
 
 class ArticleQuerySet(models.QuerySet):
@@ -28,14 +34,14 @@ ArticleManager = models.Manager.from_queryset(ArticleQuerySet)
 
 class Article(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    title = models.CharField(max_length=150, unique=True, blank=False)
+    title = models.CharField(max_length=150, blank=False)
     summary = models.TextField(blank=True)
     content = models.TextField(blank=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
-    tags = TaggableManager(blank=True)
+    tags = models.ManyToManyField(Tag, blank=True)
     favorites = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name="favorites")
     slug = models.SlugField(unique=True, max_length=255)  # Not a property as used for lookup
 

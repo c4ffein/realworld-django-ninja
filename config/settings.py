@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     # Needed for auto-host of Swagger files
     "ninja",
     # 3rd Party Packages
-    "taggit",
     "corsheaders",
     "django_extensions",
     "jwt_ninja",

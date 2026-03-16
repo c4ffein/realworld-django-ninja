@@ -32,7 +32,7 @@ class ArticleOutSchema(ModelSchema):
 
     @staticmethod
     def resolve_tagList(obj: Article) -> list[str]:
-        return sorted(obj.tags if isinstance(obj.tags, list) else [t.name for t in obj.tags.all()])
+        return sorted(t.name for t in obj.tags.all())
 
 
 class ArticleListOutSchema(ArticleOutSchema):
@@ -61,6 +61,7 @@ class ArticleInPartialUpdateSchema(Schema):
     title: str | None = None
     summary: str | None = Field(None, alias="description")
     content: str | None = Field(None, alias="body")
+    tags: SerializeAsAny[list[str]] = Field(EMPTY, alias="tagList")
 
     @field_validator("content", "summary", "title")
     @classmethod
