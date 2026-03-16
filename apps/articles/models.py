@@ -1,3 +1,4 @@
+import uuid
 from typing import Self
 
 import markdown
@@ -49,6 +50,8 @@ class Article(models.Model):
 
     def save(self, *args, **kwargs) -> None:
         self.slug = slugify(self.title)
+        if Article.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
+            self.slug = f"{self.slug}-{uuid.uuid4().hex[:8]}"
         super().save(*args, **kwargs)
 
     def as_markdown(self) -> str:
