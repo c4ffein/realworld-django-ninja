@@ -71,7 +71,7 @@ class TokenAuth(HttpBearer):
                 # On authentication failure, allow unauthenticated access
                 request.user = AnonymousUser()
                 return request.user
-            raise
+            return None
 
     def authenticate(self, request: HttpRequest, token: str) -> AuthDetails | None:
         try:
