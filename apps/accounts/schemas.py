@@ -125,6 +125,14 @@ class UserInPartialUpdateInSchema(Schema):
             raise ValueError("can't be blank")
         return v
 
+    # NIST 800-63B section 5.1.1.2: memorized secrets must be at least 8 chars.
+    @field_validator("password", check_fields=False, mode="after")
+    @classmethod
+    def password_min_length(cls, v: object) -> object:
+        if isinstance(v, str) and 0 < len(v) < 8:
+            raise ValueError("must be at least 8 characters long")
+        return v
+
 
 class UserPartialUpdateInSchema(Schema):
     user: UserInPartialUpdateInSchema
