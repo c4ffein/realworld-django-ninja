@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # hurl 8.x tarball needs libxml2.so.2, absent from Ubuntu 26.04 (ubuntu-latest)
     strategy:
       max-parallel: 4
     timeout-minutes: 10

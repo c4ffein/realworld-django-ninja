@@ -3,14 +3,28 @@ from __future__ import annotations
 from typing import Annotated, Any
 
 from ninja import ModelSchema, Schema
-from pydantic import AfterValidator, EmailStr, ValidationInfo, field_validator
+from pydantic import AfterValidator, EmailStr, ValidationInfo, WithJsonSchema, field_validator
+from pydantic.networks import validate_email
+from pydantic_core import PydanticCustomError
 
 from accounts.models import User
 from helpers.empty import EMPTY, _Empty
 
+# Plain `str` documented as `format: email`: the format is checked by the `email_format` validator of each input schema,
+# outside of any union, so that a malformed value yields a single error located on the field itself (unlike `EmailStr`)
+Email = Annotated[str, WithJsonSchema({"type": "string", "format": "email"})]
+
 
 def none_to_blank(v: str | None, info: ValidationInfo) -> str:
     return "" if v is None else v
+
+
+def valid_email(v: str) -> str:
+    """Same validation and normalization as pydantic's `EmailStr`, but with the error message expected by the spec"""
+    try:
+        return validate_email(v)[1]
+    except PydanticCustomError:
+        raise ValueError("is invalid") from None
 
 
 class ProfileSchema(ModelSchema):
@@ -49,7 +63,7 @@ class ProfileOutSchema(Schema):
 
 
 class UserInCreateSchema(ModelSchema):
-    email: EmailStr
+    email: Email
 
     class Meta:
         model = User
@@ -62,12 +76,19 @@ class UserInCreateSchema(ModelSchema):
             raise ValueError("can't be blank")
         return v
 
+    @field_validator("email", check_fields=False, mode="after")
+    @classmethod
+    def email_format(cls, v: str) -> str:
+        return valid_email(v)
+
 
 class UserCreateSchema(Schema):
     user: UserInCreateSchema
 
 
 class UserInLoginSchema(ModelSchema):
+    email: Email
+
     class Meta:
         model = User
         fields = ["email", "password"]
@@ -78,6 +99,12 @@ class UserInLoginSchema(ModelSchema):
         if not v:
             raise ValueError("can't be blank")
         return v
+
+    # Runs after `non_empty`, so that a blank email is only "can't be blank"
+    @field_validator("email", check_fields=False)
+    @classmethod
+    def email_format(cls, v: str) -> str:
+        return valid_email(v)
 
 
 class UserLoginSchema(Schema):
@@ -112,7 +139,7 @@ class UserGetSchema(Schema):
 
 
 class UserInPartialUpdateInSchema(Schema):
-    email: Annotated[EmailStr | None | _Empty, AfterValidator(none_to_blank)] = EMPTY
+    email: Annotated[Email | None | _Empty, AfterValidator(none_to_blank)] = EMPTY
     bio: Annotated[str | None | _Empty, AfterValidator(none_to_blank)] = EMPTY
     image: Annotated[str | None | _Empty, AfterValidator(none_to_blank)] = EMPTY
     username: Annotated[str | None | _Empty, AfterValidator(none_to_blank)] = EMPTY
@@ -124,6 +151,12 @@ class UserInPartialUpdateInSchema(Schema):
         if isinstance(v, str) and not v:
             raise ValueError("can't be blank")
         return v
+
+    # Runs after `non_empty`, so that a blank email is only "can't be blank"
+    @field_validator("email", check_fields=False, mode="after")
+    @classmethod
+    def email_format(cls, v: object) -> object:
+        return valid_email(v) if isinstance(v, str) else v
 
     # NIST 800-63B section 5.1.1.2: memorized secrets must be at least 8 chars.
     @field_validator("password", check_fields=False, mode="after")

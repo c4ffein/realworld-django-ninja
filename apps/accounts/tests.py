@@ -75,9 +75,23 @@ class AccountRegistrationTestCase(TestCase):
         self.assertEqual(loads(response.content), {"errors": {"username": ["has already been taken"]}})
 
     def test_account_registration_invalid_data_wrong_email(self):
-        response = self.client.post(self.url, json={**self.base_user, "email": "no-at"})
-        self.assertEqual(response.status_code, 422)
-        self.assertEqual(User.objects.count(), 0)
+        for email in ["no-at", "user@", "updated@exalom"]:
+            response = self.client.post(self.url, json={"user": {**self.base_user, "email": email}})
+            self.assertEqual(response.status_code, 422)
+            self.assertEqual(User.objects.count(), 0)
+            self.assertEqual(
+                loads(response.content),
+                {
+                    "detail": [
+                        {
+                            "ctx": {"error": "is invalid"},
+                            "loc": ["body", "data", "user", "email"],
+                            "msg": "Value error, is invalid",
+                            "type": "value_error",
+                        },
+                    ],
+                },
+            )
 
     def test_account_registration_invalid_data_missing_keys(self):
         response = self.client.post(self.url, json={"user": {}})
@@ -94,20 +108,19 @@ class AccountRegistrationTestCase(TestCase):
             response = self.client.post(self.url, json={"user": {**self.base_user, replaced: ""}})
             self.assertEqual(response.status_code, 422)
             self.assertEqual(User.objects.count(), 0)
-            if replaced in ["password", "username"]:
-                self.assertEqual(
-                    loads(response.content),
-                    {
-                        "detail": [
-                            {
-                                "ctx": {"error": "can't be blank"},
-                                "loc": ["body", "data", "user", replaced],
-                                "msg": "Value error, can't be blank",
-                                "type": "value_error",
-                            },
-                        ],
-                    },
-                )
+            self.assertEqual(
+                loads(response.content),
+                {
+                    "detail": [
+                        {
+                            "ctx": {"error": "can't be blank"},
+                            "loc": ["body", "data", "user", replaced],
+                            "msg": "Value error, can't be blank",
+                            "type": "value_error",
+                        },
+                    ],
+                },
+            )
 
 
 class AccountLoginTestCase(TestCase):
@@ -155,6 +168,41 @@ class AccountLoginTestCase(TestCase):
         missing_email = {"type": "missing", "loc": ["body", "data", "user", "email"], "msg": "Field required"}
         missing_password = {"type": "missing", "loc": ["body", "data", "user", "password"], "msg": "Field required"}
         self.assertEqual(loads(response.content), {"detail": [missing_email, missing_password]})
+
+    def test_account_login_invalid_data_wrong_email(self):
+        for email in ["no-at", "user@", "updated@exalom"]:
+            response = self.client.post(self.url, json={"user": {"email": email, "password": self.password}})
+            self.assertEqual(response.status_code, 422)
+            self.assertEqual(
+                loads(response.content),
+                {
+                    "detail": [
+                        {
+                            "ctx": {"error": "is invalid"},
+                            "loc": ["body", "data", "user", "email"],
+                            "msg": "Value error, is invalid",
+                            "type": "value_error",
+                        },
+                    ],
+                },
+            )
+
+    def test_account_login_invalid_data_empty_email(self):
+        response = self.client.post(self.url, json={"user": {"email": "", "password": self.password}})
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(
+            loads(response.content),
+            {
+                "detail": [
+                    {
+                        "ctx": {"error": "can't be blank"},
+                        "loc": ["body", "data", "user", "email"],
+                        "msg": "Value error, can't be blank",
+                        "type": "value_error",
+                    },
+                ],
+            },
+        )
 
 
 class UserViewTestCase(TestCase):
@@ -271,21 +319,15 @@ class UserViewTestCase(TestCase):
             {
                 "detail": [
                     {
+                        "ctx": {"error": "is invalid"},
+                        "loc": ["body", "data", "user", "email"],
+                        "msg": "Value error, is invalid",
                         "type": "value_error",
-                        "loc": ["body", "data", "user", "email", "function-after[_validate(), str]"],
-                        "msg": "value is not a valid email address: The part after the @-sign is not valid. "
-                        "It should have a period.",
-                        "ctx": {"reason": "The part after the @-sign is not valid. It should have a period."},
                     },
-                    {
-                        "type": "model_type",
-                        "loc": ["body", "data", "user", "email", "_Empty"],
-                        "msg": "Input should be a valid dictionary or instance of _Empty",
-                        "ctx": {"class_name": "_Empty"},
-                    },
-                ]
+                ],
             },
         )
+        self.assertEqual(User.objects.get(pk=self.user.pk).email, self.email)
 
     def test_user_view_put_invalid_data_wrong_mail(self):
         """This is wrong, but this method behaves like a PATCH, as required by the RealWorld API spec"""
@@ -296,21 +338,34 @@ class UserViewTestCase(TestCase):
             {
                 "detail": [
                     {
+                        "ctx": {"error": "is invalid"},
+                        "loc": ["body", "data", "user", "email"],
+                        "msg": "Value error, is invalid",
                         "type": "value_error",
-                        "loc": ["body", "data", "user", "email", "function-after[_validate(), str]"],
-                        "msg": "value is not a valid email address: The email address is not valid. "
-                        "It must have exactly one @-sign.",
-                        "ctx": {"reason": "The email address is not valid. It must have exactly one @-sign."},
                     },
-                    {
-                        "type": "model_type",
-                        "loc": ["body", "data", "user", "email", "_Empty"],
-                        "msg": "Input should be a valid dictionary or instance of _Empty",
-                        "ctx": {"class_name": "_Empty"},
-                    },
-                ]
+                ],
             },
         )
+        self.assertEqual(User.objects.get(pk=self.user.pk).email, self.email)
+
+    def test_user_view_put_invalid_data_empty_mail(self):
+        """This is wrong, but this method behaves like a PATCH, as required by the RealWorld API spec"""
+        response = self.client.put(self.url, json={"user": {**self.base_update, "email": ""}})
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(
+            loads(response.content),
+            {
+                "detail": [
+                    {
+                        "ctx": {"error": "can't be blank"},
+                        "loc": ["body", "data", "user", "email"],
+                        "msg": "Value error, can't be blank",
+                        "type": "value_error",
+                    },
+                ],
+            },
+        )
+        self.assertEqual(User.objects.get(pk=self.user.pk).email, self.email)
 
     def test_user_view_put_not_logged(self):
         self.client.headers = {"Content-Type": "application/json"}
